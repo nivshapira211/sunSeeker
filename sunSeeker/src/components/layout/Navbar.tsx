@@ -1,10 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Sun, Upload, MessageCircle, LogIn } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 
 const Navbar: React.FC = () => {
-    const { user, logout } = useAuth();
 
     return (
         <nav className="glass-panel" style={{
@@ -58,41 +56,6 @@ const Navbar: React.FC = () => {
                         <Upload size={18} />
                         <span className="hidden-mobile">Upload</span>
                     </NavLink>
-                </div>
-
-                {/* Auth Actions */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                    {user ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                            <span className="hidden-mobile" style={{ fontSize: '0.9rem' }}>{user.name}</span>
-                            <img
-                                src={user.avatar}
-                                alt={user.name}
-                                style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--color-primary)' }}
-                            />
-                            <button
-                                onClick={logout}
-                                style={{
-                                    background: 'transparent', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', cursor: 'pointer'
-                                }}
-                            >
-                                Sign Out
-                            </button>
-                        </div>
-                    ) : (
-                        <NavLink to="/login" className="glass-button" style={{
-                            padding: 'var(--spacing-xs) var(--spacing-md)',
-                            borderRadius: 'var(--radius-full)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--spacing-xs)',
-                            fontSize: '0.9rem',
-                            textDecoration: 'none'
-                        }}>
-                            <LogIn size={16} />
-                            <span>Login</span>
-                        </NavLink>
-                    )}
                 </div>
             </div>
 

@@ -12,6 +12,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
+    updateProfile: (name: string, avatar?: string) => Promise<void>;
     isLoading: boolean;
 }
 
@@ -52,8 +53,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.removeItem('sunseeker_user');
     };
 
+    const updateProfile = async (name: string, avatar?: string) => {
+        if (!user) return;
+
+        const updatedUser = { ...user, name, avatar: avatar || user.avatar };
+        setUser(updatedUser);
+        localStorage.setItem('sunseeker_user', JSON.stringify(updatedUser));
+
+        // Simulate delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, isLoading }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateProfile, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

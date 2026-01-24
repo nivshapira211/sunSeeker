@@ -1,10 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { MapPin, Calendar, Heart, MessageCircle, Share2, Settings, Edit } from 'lucide-react';
 
 const Profile: React.FC = () => {
-    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState('');
+    const [editAvatar, setEditAvatar] = useState<string | undefined>(undefined);
+    const { user, updateProfile } = useAuth();
+
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Initialize edit state when modal opens
+    useEffect(() => {
+        if (isEditing && user) {
+            setEditName(user.name);
+            setEditAvatar(user.avatar);
+            setIsSaving(false);
+        }
+    }, [isEditing, user]);
+
+    const handleSaveProfile = async () => {
+        if (user && !isSaving) {
+            try {
+                setIsSaving(true);
+                await updateProfile(editName, editAvatar);
+                setIsEditing(false);
+            } catch (error) {
+                console.error("Failed to save profile", error);
+            } finally {
+                setIsSaving(false);
+            }
+        }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditAvatar(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     // Mock data for posts
     const mockPosts = Array.from({ length: 6 }).map((_, i) => ({
@@ -100,14 +139,18 @@ const Profile: React.FC = () => {
 
                         {/* Actions */}
                         <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-                            <button className="glass-button glass-button-hover" style={{
-                                padding: '8px 24px',
-                                borderRadius: 'var(--radius-full)',
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}>
+                            <button
+                                className="glass-button glass-button-hover"
+                                onClick={() => setIsEditing(true)}
+                                style={{
+                                    padding: '8px 24px',
+                                    borderRadius: 'var(--radius-full)',
+                                    fontWeight: 500,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}
+                            >
                                 <Edit size={16} /> Edit Profile
                             </button>
                             <button className="glass-button glass-button-hover" style={{
@@ -247,6 +290,106 @@ const Profile: React.FC = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Edit Profile Modal */}
+            {isEditing && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.8)',
+                    zIndex: 1000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 'var(--spacing-md)'
+                }}>
+                    <div className="glass-panel" style={{
+                        width: '100%',
+                        maxWidth: '500px',
+                        padding: 'var(--spacing-xl)',
+                        borderRadius: 'var(--radius-lg)',
+                        background: 'var(--color-bg-card)',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                        <h2 style={{ marginBottom: 'var(--spacing-lg)' }}>Edit Profile</h2>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+                            {/* Avatar Upload */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+                                <div style={{
+                                    position: 'relative',
+                                    width: '100px',
+                                    height: '100px',
+                                    borderRadius: '50%',
+                                    overflow: 'hidden',
+                                    border: '2px solid var(--color-primary)'
+                                }}>
+                                    <img
+                                        src={editAvatar || user.avatar}
+                                        alt="Preview"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                </div>
+                                <label className="glass-button glass-button-hover" style={{ padding: '8px 16px', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                    Change Photo
+                                    <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+                                </label>
+                            </div>
+
+                            {/* Name Input */}
+                            <div>
+                                <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', color: 'var(--color-text-secondary)' }}>Display Name</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        color: 'white',
+                                        fontSize: '1rem',
+                                        outline: 'none'
+                                    }}
+                                />
+                            </div>
+
+                            {/* Actions */}
+                            <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
+                                <button
+                                    onClick={() => setIsEditing(false)}
+                                    className="glass-button glass-button-hover"
+                                    style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-md)' }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveProfile}
+                                    disabled={isSaving}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: 'none',
+                                        background: isSaving ? 'var(--color-text-muted)' : 'var(--gradient-sunset)',
+                                        color: 'white',
+                                        fontWeight: 600,
+                                        cursor: isSaving ? 'not-allowed' : 'pointer',
+                                        opacity: isSaving ? 0.7 : 1
+                                    }}
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -83,7 +83,7 @@ const Login: React.FC = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="text-gradient"
+                        className="hover-brightness"
                         style={{
                             marginTop: 'var(--spacing-md)',
                             padding: '12px',

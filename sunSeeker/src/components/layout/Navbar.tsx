@@ -64,16 +64,18 @@ const Navbar: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
                     {user ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                            <span className="hidden-mobile" style={{ fontSize: '0.9rem' }}>{user.name}</span>
-                            <img
-                                src={user.avatar}
-                                alt={user.name}
-                                style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--color-primary)' }}
-                            />
+                            <NavLink to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', textDecoration: 'none', color: 'inherit' }}>
+                                <span className="hidden-mobile" style={{ fontSize: '0.9rem' }}>{user.name}</span>
+                                <img
+                                    src={user.avatar}
+                                    alt={user.name}
+                                    style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--color-primary)' }}
+                                />
+                            </NavLink>
                             <button
                                 onClick={logout}
                                 style={{
-                                    background: 'transparent', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', cursor: 'pointer'
+                                    background: 'transparent', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.8rem', cursor: 'pointer', marginLeft: 'var(--spacing-xs)'
                                 }}
                             >
                                 Sign Out

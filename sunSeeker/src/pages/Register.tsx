@@ -49,7 +49,7 @@ const Register: React.FC = () => {
 
                     <button
                         type="button"
-                        className="text-gradient"
+                        className="hover-brightness"
                         style={{
                             marginTop: 'var(--spacing-md)',
                             padding: '12px',

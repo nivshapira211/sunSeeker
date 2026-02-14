@@ -3,107 +3,98 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
 import Login from '../Login';
+import * as authService from '../../services/authService';
 
-// Mock the auth service
 jest.mock('../../services/authService', () => ({
-    login: jest.fn(),
+  login: jest.fn(),
+  register: jest.fn(),
+  socialLogin: jest.fn(),
+  refreshToken: jest.fn(),
+  updateProfile: jest.fn(),
 }));
 
-// Mock the useAuth hook to provide a mock implementation
-const mockLogin = jest.fn();
-jest.mock('../../context/AuthContext', () => ({
-    ...jest.requireActual('../../context/AuthContext'),
-    useAuth: () => ({
-        login: mockLogin,
-    }),
-}));
+const mockLogin = authService.login as jest.Mock;
 
 const renderWithProviders = (component: React.ReactElement) => {
-    return render(
-        <BrowserRouter>
-            <AuthProvider>
-                {component}
-            </AuthProvider>
-        </BrowserRouter>
-    );
+  return render(
+    <BrowserRouter>
+      <AuthProvider>
+        {component}
+      </AuthProvider>
+    </BrowserRouter>
+  );
 };
 
 describe('Login Component', () => {
-    beforeEach(() => {
-        // Clear mock history before each test
-        jest.clearAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  test('renders login form correctly', () => {
+    renderWithProviders(<Login />);
+
+    expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByText(/don't have an account?/i)).toBeInTheDocument();
+  });
+
+  test('shows an error message for invalid credentials', async () => {
+    const errorMessage = 'Invalid username or password';
+    mockLogin.mockRejectedValue(new Error(errorMessage));
+
+    renderWithProviders(<Login />);
+
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'wronguser' } });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'wrongpassword' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    });
+    expect(localStorage.getItem('authToken')).toBeNull();
+  });
+
+  test('successfully logs in and stores the token', async () => {
+    const user = { id: '1', name: 'Test User', email: 'test@example.com', avatar: undefined };
+    const token = 'fake-jwt-token';
+    const refreshToken = 'fake-refresh-token';
+    mockLogin.mockResolvedValue({ user, token, refreshToken });
+
+    renderWithProviders(<Login />);
+
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'test' } });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password' } });
+    fireEvent.click(screen.getByLabelText(/keep me logged in/i));
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith('test', 'password');
     });
 
-    test('renders login form correctly', () => {
-        renderWithProviders(<Login />);
+    await waitFor(() => {
+      expect(localStorage.getItem('authToken')).toBe(token);
+      expect(localStorage.getItem('refreshToken')).toBe(refreshToken);
+      expect(localStorage.getItem('user')).toBe(JSON.stringify(user));
+    });
+  });
 
-        expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-        expect(screen.getByText(/don't have an account?/i)).toBeInTheDocument();
+  test('validates form fields before submission', async () => {
+    renderWithProviders(<Login />);
+
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/username is required/i)).toBeInTheDocument();
     });
 
-    test('shows an error message for invalid credentials', async () => {
-        // Arrange
-        const errorMessage = 'Invalid username or password';
-        mockLogin.mockRejectedValue(new Error(errorMessage));
-        
-        renderWithProviders(<Login />);
-        
-        // Act
-        fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'wronguser' } });
-        fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'wrongpassword' } });
-        fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-        // Assert
-        await waitFor(() => {
-            expect(screen.getByText(errorMessage)).toBeInTheDocument();
-        });
-        expect(window.localStorage.getItem('authToken')).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByText(/password is required/i)).toBeInTheDocument();
     });
-
-    test('successfully logs in and stores the token', async () => {
-        // Arrange
-        const user = { id: '1', name: 'Test User', email: 'test@example.com' };
-        const token = 'fake-token';
-        const keepLoggedIn = true;
-
-        // Mock the login function to resolve successfully
-        mockLogin.mockResolvedValue({ user, token, keepLoggedIn });
-
-        renderWithProviders(<Login />);
-
-        // Act
-        fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'test' } });
-        fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password' } });
-        fireEvent.click(screen.getByLabelText(/keep me logged in/i));
-        fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-
-        // Assert
-        await waitFor(() => {
-            // Check if login function was called with correct arguments
-            expect(mockLogin).toHaveBeenCalledWith('test', 'password', true);
-        });
-
-    });
-
-    test('validates form fields before submission', async () => {
-        renderWithProviders(<Login />);
-
-        // Click sign-in without filling out the form
-        fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-
-        // Assert that an error message is shown
-        await waitFor(() => {
-            expect(screen.getByText(/username is required/i)).toBeInTheDocument();
-        });
-
-        // Fill in username but not password
-        fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
-        fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-
-        await waitFor(() => {
-            expect(screen.getByText(/password is required/i)).toBeInTheDocument();
-        });
-    });
+  });
 });

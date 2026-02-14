@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, FileImage } from 'lucide-react';
+import { User, Mail, Lock, FileImage, Chrome, Facebook } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import * as authService from '../services/authService';
 import './Auth.css';
 
 const Register: React.FC = () => {
@@ -52,7 +53,6 @@ const Register: React.FC = () => {
             navigate('/login');
         } catch (err) {
             setError((err as Error).message || 'Registration failed. Please try again.');
-            console.error(err);
         } finally {
             setIsLoading(false);
         }
@@ -141,6 +141,40 @@ const Register: React.FC = () => {
                         {isLoading ? 'Creating Account...' : 'Create Account'}
                     </button>
                 </form>
+
+                <div className="divider">Or continue with</div>
+                <div className="social-login">
+                    <button
+                        type="button"
+                        className="social-button"
+                        onClick={async () => {
+                            setError('');
+                            try {
+                                await authService.socialLogin('google');
+                            } catch (err) {
+                                setError((err as Error).message || 'Social login failed.');
+                            }
+                        }}
+                    >
+                        <Chrome size={20} />
+                        <span>Google</span>
+                    </button>
+                    <button
+                        type="button"
+                        className="social-button"
+                        onClick={async () => {
+                            setError('');
+                            try {
+                                await authService.socialLogin('facebook');
+                            } catch (err) {
+                                setError((err as Error).message || 'Social login failed.');
+                            }
+                        }}
+                    >
+                        <Facebook size={20} />
+                        <span>Facebook</span>
+                    </button>
+                </div>
 
                 <p className="auth-footer">
                     Already have an account? <Link to="/login" className="auth-link">Sign in</Link>

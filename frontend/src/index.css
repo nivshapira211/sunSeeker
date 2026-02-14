@@ -25,6 +25,8 @@
   /* Slate 400 */
   --color-text-muted: #64748b;
   /* Slate 500 */
+  --color-danger: #ef4444;
+  /* Red for errors */
 
   /* Gradients */
   --gradient-sunset: linear-gradient(135deg, #FF7E5F 0%, #feb47b 100%);

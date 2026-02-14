@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import * as authService from '../services/authService';
 import { User, Lock, Chrome, Facebook } from 'lucide-react';
 import './Auth.css';
 
@@ -42,7 +43,6 @@ const Login: React.FC = () => {
             navigate('/');
         } catch (err) {
             setError((err as Error).message || 'Login failed. Please check your credentials.');
-            console.error('Login failed', err);
         } finally {
             setIsLoading(false);
         }
@@ -103,11 +103,43 @@ const Login: React.FC = () => {
                 <div className="divider">Or continue with</div>
 
                 <div className="social-login">
-                    <button className="social-button">
+                    <button
+                        type="button"
+                        className="social-button"
+                        onClick={async () => {
+                            setError('');
+                            try {
+                                const res = await authService.socialLogin('google');
+                                const storage = keepLoggedIn ? localStorage : sessionStorage;
+                                storage.setItem('authToken', res.token);
+                                storage.setItem('refreshToken', res.refreshToken);
+                                storage.setItem('user', JSON.stringify(res.user));
+                                window.location.href = '/';
+                            } catch (err) {
+                                setError((err as Error).message || 'Social login failed.');
+                            }
+                        }}
+                    >
                         <Chrome size={20} />
                         <span>Google</span>
                     </button>
-                    <button className="social-button">
+                    <button
+                        type="button"
+                        className="social-button"
+                        onClick={async () => {
+                            setError('');
+                            try {
+                                const res = await authService.socialLogin('facebook');
+                                const storage = keepLoggedIn ? localStorage : sessionStorage;
+                                storage.setItem('authToken', res.token);
+                                storage.setItem('refreshToken', res.refreshToken);
+                                storage.setItem('user', JSON.stringify(res.user));
+                                window.location.href = '/';
+                            } catch (err) {
+                                setError((err as Error).message || 'Social login failed.');
+                            }
+                        }}
+                    >
                         <Facebook size={20} />
                         <span>Facebook</span>
                     </button>

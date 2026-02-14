@@ -85,17 +85,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const updateProfile = async (name: string, avatar?: string) => {
         if (!user) return;
         setIsLoading(true);
-
-        // Here you would call an `updateProfile` service function
-        // For now, we just update the state locally
-        const updatedUser = { ...user, name, avatar: avatar || user.avatar };
-        
-        const storage = localStorage.getItem('authToken') ? localStorage : sessionStorage;
-        storage.setItem('user', JSON.stringify(updatedUser));
-
-        setUser(updatedUser);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setIsLoading(false);
+        try {
+            const updated = await authService.updateProfile(user.id, {
+                name,
+                avatar: avatar || user.avatar,
+            });
+            const updatedUser = { ...user, ...updated, email: user.email };
+            const storage = localStorage.getItem('authToken') ? localStorage : sessionStorage;
+            storage.setItem('user', JSON.stringify(updatedUser));
+            setUser(updatedUser);
+        } catch (error) {
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

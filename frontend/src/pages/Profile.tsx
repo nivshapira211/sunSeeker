@@ -15,6 +15,7 @@ const Profile: React.FC = () => {
     const [editName, setEditName] = useState('');
     const [editAvatar, setEditAvatar] = useState<string | undefined>(undefined);
     const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
 
     // State for user's posts
     const [userPosts, setUserPosts] = useState<Photo[]>([]);
@@ -29,8 +30,8 @@ const Profile: React.FC = () => {
                     // The service currently returns the entire mock feed, let's filter it client-side
                     const allPosts = await getPostsByUserId(user.id);
                     setUserPosts(allPosts);
-                } catch (error) {
-                    console.error("Failed to fetch user posts", error);
+                } catch {
+                    // Error state could be shown in UI
                 } finally {
                     setPostsLoading(false);
                 }
@@ -49,12 +50,13 @@ const Profile: React.FC = () => {
 
     const handleSaveProfile = async () => {
         if (user && !isSaving) {
+            setSaveError(null);
             setIsSaving(true);
             try {
                 await updateProfile(editName, editAvatar);
                 setIsEditing(false);
-            } catch (error) {
-                console.error("Failed to save profile", error);
+            } catch (err) {
+                setSaveError(err instanceof Error ? err.message : 'Failed to save profile. Please try again.');
             } finally {
                 setIsSaving(false);
             }
@@ -155,7 +157,13 @@ const Profile: React.FC = () => {
             ) : (
                 <div className="grid-responsive">
                     {activeTab === 'posts' && userPosts.map((photo) => (
-                        <FeedCard photo={photo} key={photo.id} />
+                        <FeedCard
+                            key={photo.id}
+                            photo={photo}
+                            currentUserId={user?.id}
+                            onDeleted={(id) => setUserPosts((prev) => prev.filter((p) => p.id !== id))}
+                            onUpdated={(updated) => setUserPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))}
+                        />
                     ))}
                     {activeTab === 'posts' && userPosts.length === 0 && (
                         <p>You haven't posted any sunrises yet.</p>
@@ -169,7 +177,10 @@ const Profile: React.FC = () => {
                     <div className="edit-modal-panel glass-panel">
                         <h2>Edit Profile</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+                            {saveError && (
+                        <p style={{ color: 'var(--color-danger)', marginBottom: 'var(--spacing-md)' }}>{saveError}</p>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-md)' }}>
                                 <img
                                     src={editAvatar || user.avatar}
                                     alt="Preview"

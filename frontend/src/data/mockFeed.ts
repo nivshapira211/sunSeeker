@@ -5,6 +5,7 @@ export interface Photo {
     coordinates: { lat: number; lng: number };
     time: string;
     date: string;
+    caption?: string;
     user: {
         id: string;
         name: string;

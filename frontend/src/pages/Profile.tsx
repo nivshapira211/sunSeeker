@@ -1,29 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { MapPin, Calendar, Heart, MessageCircle, Share2, Settings, Edit } from 'lucide-react';
+import { MapPin, Calendar, Mail, Edit, Settings } from 'lucide-react';
+import { getPostsByUserId } from '../services/postService'; // Import the service
+import { type Photo } from '../data/mockFeed'; // Import the Photo type
+import FeedCard from '../components/feed/FeedCard';
+import './Profile.css';
 
 const Profile: React.FC = () => {
+    const { user, updateProfile, isLoading: authIsLoading } = useAuth();
     const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
     const [isEditing, setIsEditing] = useState(false);
+    
+    // State for profile edits
     const [editName, setEditName] = useState('');
     const [editAvatar, setEditAvatar] = useState<string | undefined>(undefined);
-    const { user, updateProfile } = useAuth();
-
     const [isSaving, setIsSaving] = useState(false);
 
-    // Initialize edit state when modal opens
+    // State for user's posts
+    const [userPosts, setUserPosts] = useState<Photo[]>([]);
+    const [postsLoading, setPostsLoading] = useState(true);
+
+    // Fetch user's posts when the component mounts or the user changes
+    useEffect(() => {
+        const fetchUserPosts = async () => {
+            if (user) {
+                setPostsLoading(true);
+                try {
+                    // The service currently returns the entire mock feed, let's filter it client-side
+                    const allPosts = await getPostsByUserId(user.id);
+                    setUserPosts(allPosts);
+                } catch (error) {
+                    console.error("Failed to fetch user posts", error);
+                } finally {
+                    setPostsLoading(false);
+                }
+            }
+        };
+        fetchUserPosts();
+    }, [user]);
+
+    // Initialize edit form when the modal is opened
     useEffect(() => {
         if (isEditing && user) {
             setEditName(user.name);
             setEditAvatar(user.avatar);
-            setIsSaving(false);
         }
     }, [isEditing, user]);
 
     const handleSaveProfile = async () => {
         if (user && !isSaving) {
+            setIsSaving(true);
             try {
-                setIsSaving(true);
                 await updateProfile(editName, editAvatar);
                 setIsEditing(false);
             } catch (error) {
@@ -38,22 +65,14 @@ const Profile: React.FC = () => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setEditAvatar(reader.result as string);
-            };
+            reader.onloadend = () => setEditAvatar(reader.result as string);
             reader.readAsDataURL(file);
         }
     };
 
-    // Mock data for posts
-    const mockPosts = Array.from({ length: 6 }).map((_, i) => ({
-        id: i,
-        image: `https://source.unsplash.com/random/800x800?sunset,sunrise&sig=${i}`,
-        location: ['Malibu, CA', 'Santorini, Greece', 'Kyoto, Japan', 'Cape Town, SA', 'Maui, HI', 'Bali, Indonesia'][i],
-        date: '2 hours ago',
-        likes: Math.floor(Math.random() * 500) + 50,
-        comments: Math.floor(Math.random() * 50) + 5
-    }));
+    if (authIsLoading) {
+        return <div className="container flex-center" style={{ minHeight: '60vh' }}>Loading profile...</div>;
+    }
 
     if (!user) {
         return (
@@ -64,325 +83,129 @@ const Profile: React.FC = () => {
     }
 
     return (
-        <div className="container" style={{ paddingBottom: 'var(--spacing-2xl)' }}>
-            {/* Profile Header */}
-            <div className="glass-panel" style={{
-                marginTop: 'var(--spacing-xl)',
-                padding: 'var(--spacing-xl)',
-                borderRadius: 'var(--radius-lg)',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
-                {/* Background decorative element */}
-                <div style={{
-                    position: 'absolute',
-                    top: '-50%',
-                    right: '-20%',
-                    width: '600px',
-                    height: '600px',
-                    background: 'radial-gradient(circle, rgba(255,126,95,0.1) 0%, rgba(0,0,0,0) 70%)',
-                    zIndex: 0,
-                    pointerEvents: 'none'
-                }}></div>
-
-                <div className="profile-header-content" style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xl)' }}>
-
-                    {/* Top Row: Avatar & Info */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 'var(--spacing-lg)' }}>
-                        {/* Avatar */}
-                        <div style={{
-                            position: 'relative',
-                            padding: '4px',
-                            background: 'var(--gradient-sunset)',
-                            borderRadius: '50%'
-                        }}>
+        <div className="profile-container container">
+            <header className="profile-header-panel glass-panel">
+                <div className="profile-bg-decorative"></div>
+                <div className="profile-header-content">
+                    <div className="profile-main-info">
+                         <div className="profile-avatar-wrapper">
                             <img
-                                src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=FF7E5F&color=fff`}
+                                src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
                                 alt={user.name}
-                                style={{
-                                    width: '120px',
-                                    height: '120px',
-                                    borderRadius: '50%',
-                                    border: '4px solid var(--color-bg-card)',
-                                    objectFit: 'cover',
-                                    display: 'block'
-                                }}
+                                className="profile-avatar"
                             />
                         </div>
 
-                        {/* User Info */}
-                        <div>
-                            <h1 style={{ fontSize: '2rem', marginBottom: 'var(--spacing-xs)' }}>{user.name}</h1>
-                            <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-md)' }}>@{user.name.toLowerCase().replace(/\s+/g, '')}</p>
-
-                            <p style={{ maxWidth: '500px', margin: '0 auto', lineHeight: '1.6' }}>
-                                Values sunrise chaser 🌅 | Photography enthusiast 📸 | Seeking the perfect light everywhere I go.
+                        <div className="profile-user-details">
+                            <h1>{user.name}</h1>
+                            <p className="username">@{user.name.toLowerCase().replace(/\s+/g, '')}</p>
+                            <p className="email flex-center" style={{ gap: 'var(--spacing-xs)' }}><Mail size={14} /> {user.email}</p>
+                            <p className="profile-bio">
+                                Sunrise chaser 🌅 | Photography enthusiast 📸 | Seeking the perfect light.
                             </p>
-
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: 'var(--spacing-md)',
-                                marginTop: 'var(--spacing-md)',
-                                color: 'var(--color-text-muted)',
-                                fontSize: '0.9rem'
-                            }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <MapPin size={16} /> Global Nomad
-                                </span>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <Calendar size={16} /> Joined Jan 2026
-                                </span>
+                            <div className="profile-meta">
+                                <span className="profile-meta-item"><MapPin size={16} /> Global Nomad</span>
+                                <span className="profile-meta-item"><Calendar size={16} /> Joined Jan 2026</span>
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-                            <button
-                                className="glass-button glass-button-hover"
-                                onClick={() => setIsEditing(true)}
-                                style={{
-                                    padding: '8px 24px',
-                                    borderRadius: 'var(--radius-full)',
-                                    fontWeight: 500,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}
-                            >
+                        <div className="profile-actions">
+                            <button className="glass-button glass-button-hover" onClick={() => setIsEditing(true)}>
                                 <Edit size={16} /> Edit Profile
                             </button>
-                            <button className="glass-button glass-button-hover" style={{
-                                padding: '8px',
-                                borderRadius: '50%'
-                            }}>
+                            <button className="glass-button glass-button-hover" style={{ padding: '8px', borderRadius: '50%' }}>
                                 <Settings size={18} />
                             </button>
                         </div>
                     </div>
-
-                    {/* Stats Row */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: 'var(--spacing-2xl)',
-                        borderTop: '1px solid rgba(255,255,255,0.05)',
-                        paddingTop: 'var(--spacing-lg)',
-                        marginTop: 'var(--spacing-sm)'
-                    }}>
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="text-gradient" style={{ fontSize: '1.5rem', fontWeight: 700 }}>42</div>
-                            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Sunrises</div>
+                    <div className="profile-stats">
+                        <div className="profile-stat-item">
+                            <div className="stat-number text-gradient">{postsLoading ? '...' : userPosts.length}</div>
+                            <div className="stat-label">Sunrises</div>
                         </div>
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="text-gradient" style={{ fontSize: '1.5rem', fontWeight: 700 }}>1.2k</div>
-                            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Followers</div>
+                        <div className="profile-stat-item">
+                            <div className="stat-number text-gradient">1.2k</div>
+                            <div className="stat-label">Followers</div>
                         </div>
-                        <div style={{ textAlign: 'center' }}>
-                            <div className="text-gradient" style={{ fontSize: '1.5rem', fontWeight: 700 }}>350</div>
-                            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Following</div>
+                        <div className="profile-stat-item">
+                            <div className="stat-number text-gradient">350</div>
+                            <div className="stat-label">Following</div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            {/* Content Tabs */}
-            <div style={{
-                marginTop: 'var(--spacing-xl)',
-                marginBottom: 'var(--spacing-lg)',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                display: 'flex',
-                gap: 'var(--spacing-xl)'
-            }}>
+            <div className="profile-tabs">
                 <button
                     onClick={() => setActiveTab('posts')}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 'var(--spacing-md) 0',
-                        color: activeTab === 'posts' ? 'var(--color-accent)' : 'var(--color-text-muted)',
-                        borderBottom: activeTab === 'posts' ? '2px solid var(--color-accent)' : '2px solid transparent',
-                        fontWeight: 500,
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                    }}
+                    className={`profile-tab ${activeTab === 'posts' ? 'active' : 'inactive'}`}
                 >
                     My Sunrises
                 </button>
                 <button
                     onClick={() => setActiveTab('saved')}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        padding: 'var(--spacing-md) 0',
-                        color: activeTab === 'saved' ? 'var(--color-accent)' : 'var(--color-text-muted)',
-                        borderBottom: activeTab === 'saved' ? '2px solid var(--color-accent)' : '2px solid transparent',
-                        fontWeight: 500,
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease'
-                    }}
+                    className={`profile-tab ${activeTab === 'saved' ? 'active' : 'inactive'}`}
                 >
                     Saved
                 </button>
             </div>
 
-            {/* Posts Grid */}
-            <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--spacing-lg)' }}>
-                {mockPosts.map((post) => (
-                    <div key={post.id} className="glass-panel" style={{
-                        borderRadius: 'var(--radius-lg)',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        transition: 'transform 0.3s ease'
-                    }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                    >
-                        <div style={{ position: 'relative', paddingTop: '100%' }}>
-                            <img
-                                src={post.image}
-                                alt="Sunrise"
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
-                                }}
-                            />
-                            <div style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                background: 'rgba(0,0,0,0.5)',
-                                backdropFilter: 'blur(4px)',
-                                padding: '4px 8px',
-                                borderRadius: 'var(--radius-full)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                fontSize: '0.8rem',
-                                color: 'white'
-                            }}>
-                                <Share2 size={12} />
-                            </div>
-                        </div>
-                        <div style={{ padding: 'var(--spacing-md)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-xs)' }}>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{post.location}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
-                                <span>{post.date}</span>
-                                <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <Heart size={14} /> {post.likes}
-                                    </span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <MessageCircle size={14} /> {post.comments}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            {postsLoading ? (
+                <div className="flex-center" style={{ minHeight: '200px' }}>Loading posts...</div>
+            ) : (
+                <div className="grid-responsive">
+                    {activeTab === 'posts' && userPosts.map((photo) => (
+                        <FeedCard photo={photo} key={photo.id} />
+                    ))}
+                    {activeTab === 'posts' && userPosts.length === 0 && (
+                        <p>You haven't posted any sunrises yet.</p>
+                    )}
+                    {/* Add a section for saved posts if needed */}
+                </div>
+            )}
 
-            {/* Edit Profile Modal */}
             {isEditing && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.8)',
-                    zIndex: 1000,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 'var(--spacing-md)'
-                }}>
-                    <div className="glass-panel" style={{
-                        width: '100%',
-                        maxWidth: '500px',
-                        padding: 'var(--spacing-xl)',
-                        borderRadius: 'var(--radius-lg)',
-                        background: 'var(--color-bg-card)',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}>
-                        <h2 style={{ marginBottom: 'var(--spacing-lg)' }}>Edit Profile</h2>
-
+                <div className="edit-modal-overlay">
+                    <div className="edit-modal-panel glass-panel">
+                        <h2>Edit Profile</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-                            {/* Avatar Upload */}
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-                                <div style={{
-                                    position: 'relative',
-                                    width: '100px',
-                                    height: '100px',
-                                    borderRadius: '50%',
-                                    overflow: 'hidden',
-                                    border: '2px solid var(--color-primary)'
-                                }}>
-                                    <img
-                                        src={editAvatar || user.avatar}
-                                        alt="Preview"
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </div>
-                                <label className="glass-button glass-button-hover" style={{ padding: '8px 16px', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: '0.9rem' }}>
+                                <img
+                                    src={editAvatar || user.avatar}
+                                    alt="Preview"
+                                    style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
+                                />
+                                <label className="glass-button glass-button-hover">
                                     Change Photo
                                     <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
                                 </label>
                             </div>
-
-                            {/* Name Input */}
                             <div>
-                                <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', color: 'var(--color-text-secondary)' }}>Display Name</label>
+                                <label htmlFor="edit-name">Display Name</label>
                                 <input
+                                    id="edit-name"
                                     type="text"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px',
-                                        borderRadius: 'var(--radius-md)',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        background: 'rgba(255,255,255,0.05)',
-                                        color: 'white',
-                                        fontSize: '1rem',
-                                        outline: 'none'
-                                    }}
+                                    className="auth-input"
                                 />
                             </div>
-
-                            {/* Actions */}
+                             <div>
+                                <label htmlFor="edit-email" style={{ color: 'var(--color-text-muted)' }}>Email (cannot be changed)</label>
+                                <input
+                                    id="edit-email"
+                                    type="email"
+                                    value={user.email}
+                                    disabled
+                                    className="auth-input"
+                                    style={{ background: 'rgba(0,0,0,0.2)', cursor: 'not-allowed' }}
+                                />
+                            </div>
                             <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
-                                <button
-                                    onClick={() => setIsEditing(false)}
-                                    className="glass-button glass-button-hover"
-                                    style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-md)' }}
-                                >
+                                <button onClick={() => setIsEditing(false)} className="glass-button glass-button-hover" style={{ flex: 1 }}>
                                     Cancel
                                 </button>
-                                <button
-                                    onClick={handleSaveProfile}
-                                    disabled={isSaving}
-                                    style={{
-                                        flex: 1,
-                                        padding: '12px',
-                                        borderRadius: 'var(--radius-md)',
-                                        border: 'none',
-                                        background: isSaving ? 'var(--color-text-muted)' : 'var(--gradient-sunset)',
-                                        color: 'white',
-                                        fontWeight: 600,
-                                        cursor: isSaving ? 'not-allowed' : 'pointer',
-                                        opacity: isSaving ? 0.7 : 1
-                                    }}
-                                >
+                                <button onClick={handleSaveProfile} disabled={isSaving} className="auth-button" style={{ flex: 1 }}>
                                     {isSaving ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>

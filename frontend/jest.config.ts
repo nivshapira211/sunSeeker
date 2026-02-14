@@ -6,7 +6,7 @@ const config: Config = {
   testEnvironment: 'jest-environment-jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(css|less|scss|sass)$': '<rootDir>/src/__mocks__/styleMock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transform: {

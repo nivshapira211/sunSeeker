@@ -1,16 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import * as authService from '../services/authService';
+import { type ApiUser } from '../services/authService';
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-}
+// The User interface can be the same as ApiUser for consistency
+type User = ApiUser;
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (username: string, password: string, keepLoggedIn: boolean) => Promise<void>;
+    register: (username: string, email: string, password: string, avatar?: File | null) => Promise<void>;
     logout: () => void;
     updateProfile: (name: string, avatar?: string) => Promise<void>;
     isLoading: boolean;
@@ -23,49 +22,84 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage or validate token here
-        const storedUser = localStorage.getItem('sunseeker_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setIsLoading(false);
+        const initializeAuth = async () => {
+            const storedToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+            const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+
+            if (storedToken && storedUser) {
+                // TODO: Add token validation logic here. If the token is expired,
+                // you might want to use the refresh token to get a new one.
+                setUser(JSON.parse(storedUser));
+            }
+            setIsLoading(false);
+        };
+        initializeAuth();
     }, []);
 
-    const login = async (email: string, _password: string) => {
-        // Mock login
+    const login = async (username: string, password: string, keepLoggedIn: boolean) => {
         setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+        try {
+            const { user: apiUser, token, refreshToken } = await authService.login(username, password);
+            
+            const storage = keepLoggedIn ? localStorage : sessionStorage;
+            storage.setItem('authToken', token);
+            storage.setItem('refreshToken', refreshToken);
+            storage.setItem('user', JSON.stringify(apiUser));
+            
+            setUser(apiUser);
+        } catch (error) {
+            console.error("Login failed:", error);
+            // Re-throw the error so the UI component can handle it
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        const mockUser: User = {
-            id: '1',
-            name: email.split('@')[0],
-            email: email,
-            avatar: `https://ui-avatars.com/api/?name=${email.split('@')[0]}&background=FF7E5F&color=fff`
-        };
-
-        setUser(mockUser);
-        localStorage.setItem('sunseeker_user', JSON.stringify(mockUser));
-        setIsLoading(false);
+    const register = async (username: string, email: string, password: string, avatar?: File | null) => {
+        setIsLoading(true);
+        try {
+            // The service returns the new user, but typically we don't auto-login.
+            // The user will be redirected to the login page after successful registration.
+            await authService.register(username, email, password, avatar);
+        } catch (error) {
+            console.error("Registration failed:", error);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('sunseeker_user');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('authToken');
+        sessionStorage.removeItem('refreshToken');
+        sessionStorage.removeItem('user');
+        // Optional: Redirect to login or home page after logout
+        // window.location.href = '/login';
     };
 
     const updateProfile = async (name: string, avatar?: string) => {
         if (!user) return;
+        setIsLoading(true);
 
+        // Here you would call an `updateProfile` service function
+        // For now, we just update the state locally
         const updatedUser = { ...user, name, avatar: avatar || user.avatar };
-        setUser(updatedUser);
-        localStorage.setItem('sunseeker_user', JSON.stringify(updatedUser));
+        
+        const storage = localStorage.getItem('authToken') ? localStorage : sessionStorage;
+        storage.setItem('user', JSON.stringify(updatedUser));
 
-        // Simulate delay
+        setUser(updatedUser);
         await new Promise(resolve => setTimeout(resolve, 500));
+        setIsLoading(false);
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateProfile, isLoading }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, updateProfile, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

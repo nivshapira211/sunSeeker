@@ -1,108 +1,60 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Mail, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import * as authService from '../services/authService';
+import { Chrome } from 'lucide-react';
+import './Auth.css';
 
 const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const { login } = useAuth();
-    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleGoogleLogin = async () => {
         setIsLoading(true);
+        setError('');
         try {
-            await login(email, password);
+            const res = await authService.socialLogin('google');
+            // Defaulting to localStorage for persistence
+            localStorage.setItem('authToken', res.token);
+            localStorage.setItem('refreshToken', res.refreshToken);
+            localStorage.setItem('user', JSON.stringify(res.user));
             navigate('/');
-        } catch (error) {
-            console.error('Login failed', error);
+        } catch (err) {
+            setError((err as Error).message || 'Google login failed.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="container flex-center" style={{ minHeight: '80vh' }}>
-            <div className="glass-panel" style={{ padding: 'var(--spacing-2xl)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '400px' }}>
-                <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>
-                    <h2 className="text-gradient" style={{ fontSize: '2rem', marginBottom: 'var(--spacing-xs)' }}>Welcome Back</h2>
-                    <p style={{ color: 'var(--color-text-secondary)' }}>Sign in to continue your journey</p>
+        <div className="auth-container">
+            <div className="auth-panel">
+                <div className="auth-header">
+                    <h2 className="text-gradient">Welcome to SunSeeker</h2>
+                    <p>Connect with your Google account to continue</p>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Email Adress</label>
-                        <div style={{ position: 'relative' }}>
-                            <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                            <input
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@example.com"
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 10px 10px 40px',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    color: 'white',
-                                    fontSize: '1rem',
-                                    outline: 'none'
-                                }}
-                            />
-                        </div>
-                    </div>
+                {error && (
+                    <p className="error-message" style={{ color: 'var(--color-danger)', textAlign: 'center', marginBottom: '1rem' }}>
+                        {error}
+                    </p>
+                )}
 
-                    <div>
-                        <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Password</label>
-                        <div style={{ position: 'relative' }}>
-                            <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                style={{
-                                    width: '100%',
-                                    padding: '10px 10px 10px 40px',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    background: 'rgba(255,255,255,0.05)',
-                                    color: 'white',
-                                    fontSize: '1rem',
-                                    outline: 'none'
-                                }}
-                            />
-                        </div>
-                    </div>
-
+                <div className="social-login" style={{ marginTop: '2rem' }}>
                     <button
-                        type="submit"
+                        type="button"
+                        className="social-button google-only-button"
+                        onClick={handleGoogleLogin}
                         disabled={isLoading}
-                        className="hover-brightness"
-                        style={{
-                            marginTop: 'var(--spacing-md)',
-                            padding: '12px',
-                            borderRadius: 'var(--radius-md)',
-                            border: 'none',
-                            background: 'var(--gradient-sunset)',
-                            color: 'white',
-                            fontSize: '1rem',
-                            fontWeight: 600,
-                            cursor: isLoading ? 'not-allowed' : 'pointer',
-                            opacity: isLoading ? 0.7 : 1
-                        }}
+                        style={{ width: '100%', justifyContent: 'center', gap: '1rem', padding: '1rem' }}
                     >
-                        {isLoading ? 'Signing In...' : 'Sign In'}
+                        <Chrome size={24} />
+                        <span>{isLoading ? 'Connecting...' : 'Continue with Google'}</span>
                     </button>
-                </form>
+                </div>
 
-                <p style={{ textAlign: 'center', marginTop: 'var(--spacing-lg)', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                    Don't have an account? <Link to="/register" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>Sign up</Link>
+                <p className="auth-footer" style={{ marginTop: '2rem', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>
+                    By continuing, you agree to our Terms of Service and Privacy Policy.
                 </p>
             </div>
         </div>

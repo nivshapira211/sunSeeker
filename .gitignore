@@ -42,3 +42,5 @@ packages/react-devtools-shell/dist
 packages/react-devtools-timeline/dist
 AGENTS.md
 GEMINI.md
+server.key
+server.cert

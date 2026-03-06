@@ -11,9 +11,12 @@ connectDB();
 
 const PORT = process.env.PORT || 3000;
 
+const sslDir = path.join(__dirname, '..', '..', 'ssl');
+const sslKeyPath = process.env.SSL_KEY_PATH || path.join(sslDir, 'server.key');
+const sslCertPath = process.env.SSL_CERT_PATH || path.join(sslDir, 'server.crt');
 const sslOptions = {
-  key: fs.readFileSync(path.join(process.cwd(), process.env.SSL_KEY_PATH || '../certs/server.key')),
-  cert: fs.readFileSync(path.join(process.cwd(), process.env.SSL_CERT_PATH || '../certs/server.cert')),
+  key: fs.readFileSync(sslKeyPath),
+  cert: fs.readFileSync(sslCertPath),
 };
 
 https.createServer(sslOptions, app).listen(PORT, () => {

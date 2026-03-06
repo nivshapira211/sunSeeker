@@ -1,9 +1,17 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+try {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+} catch {
+  // directory may already exist
+}
 
 const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'src/uploads/');
+  destination(_req, _file, cb) {
+    cb(null, uploadsDir);
   },
   filename(req, file, cb) {
     cb(

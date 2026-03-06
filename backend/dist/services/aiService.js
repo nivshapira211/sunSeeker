@@ -8,9 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRecommendations = exports.detectSunriseSunset = void 0;
 const generative_ai_1 = require("@google/generative-ai");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const apiKey = process.env.AI_API_KEY;
 const genAI = apiKey && apiKey !== 'your_gemini_or_chatgpt_api_key' ? new generative_ai_1.GoogleGenerativeAI(apiKey) : null;
 const detectSunriseSunset = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {

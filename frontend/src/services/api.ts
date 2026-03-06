@@ -17,6 +17,13 @@ function getBaseUrl(): string {
 /** True when a backend base URL is configured; otherwise services use mocks. */
 export const hasApiBaseUrl = (): boolean => Boolean(getBaseUrl());
 
+/** Origin for upload URLs (e.g. http://localhost:3000). Strips /api from base URL. */
+export function getUploadsBaseUrl(): string {
+  const b = getBaseUrl();
+  if (!b) return '';
+  return b.replace(/\/api\/?$/i, '').replace(/\/$/, '') || b;
+}
+
 export class ApiError extends Error {
   status?: number;
   body?: unknown;

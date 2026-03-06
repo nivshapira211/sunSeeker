@@ -18,13 +18,13 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const generateToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '30d',
+        expiresIn: '1h',
     });
 };
 exports.generateToken = generateToken;
 const generateRefreshToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_REFRESH_SECRET, {
-        expiresIn: '7d',
+        expiresIn: '30d',
     });
 };
 exports.generateRefreshToken = generateRefreshToken;
@@ -67,7 +67,9 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.registerUser = registerUser;
 const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
-    const user = yield User_1.default.findOne({ username });
+    const user = yield User_1.default.findOne({
+        $or: [{ username: username === null || username === void 0 ? void 0 : username.trim() }, { email: username === null || username === void 0 ? void 0 : username.trim() }],
+    });
     if (user && user.password && (yield bcryptjs_1.default.compare(password, user.password))) {
         const token = (0, exports.generateToken)(user._id.toString());
         const refreshToken = (0, exports.generateRefreshToken)(user._id.toString());

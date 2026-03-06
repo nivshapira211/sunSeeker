@@ -1,123 +1,54 @@
-# 🌅 SunShare: Sunrise & Sunset Sharing App
+# SunSeeker
 
-Welcome to **SunShare**! This is a Full Stack application (Node.js/React) designed for friends to share, like, and comment on beautiful sunrise and sunset moments. 
+SunSeeker is a collaborative platform designed for discovering and planning sunrise and sunset viewing experiences. It bridges the gap between beautiful photography and practical planning by providing the exact technical data needed to recreate a captured moment.
 
-This guide provides step-by-step instructions on how to set up the local development environment, run the required tests, and start the application in production mode using PM2 and HTTPS.
-By Niv Shapira and Ofek Saar
----
+## About the App
 
-## 📋 Prerequisites
+The core value of SunSeeker lies in its combination of a visually immersive experience with actionable technical information. Users don't just see a photo; they learn exactly where it was taken and the precise time they need to be there to witness the same event.
 
-Before you begin, ensure you have the following installed on your machine:
-* **Node.js** (v18+ recommended)
-* **MongoDB** (Installed locally. Atlas/Cloud is strictly forbidden for this project)
-* **Git**
-* **PM2** (Install globally: `npm install -g pm2`)
-* **OpenSSL** (To generate local HTTPS certificates)
+The app also offers personalized suggestions for nearby viewing spots and optimal times based on the user's current location.
 
----
+## Key Features
 
-## 🔒 Step 1: Database Setup (Local MongoDB)
+* **Sunrise & Sunset Feed**:
+* Browse a feed of photos uploaded by the community.
 
-The application requires a local MongoDB instance protected by a username and password.
 
-1. Open your local MongoDB terminal or MongoDB Compass.
-2. Create a new database named `sunshare_db`.
-3. Create a user with read/write privileges for this database:
-   ```javascript
-   use sunshare_db
-   db.createUser({
-     user: "admin",
-     pwd: "your_secure_password",
-     roles: [ { role: "readWrite", db: "sunshare_db" } ]
-   })
+* Engage with content through likes and comments.
 
-## 🔐 Step 2: Generate HTTPS Certificates
-Both the Frontend and Backend must run over HTTPS. You need to generate local SSL certificates.
 
-Create a folder named certs in your project root.
+* Access the exact time and location data for every photo in the feed.
 
-Run the following command in your terminal to generate the keys (GitBash or Linux/Mac terminal):
 
-```
-openssl req -nodes -new -x509 -keyout certs/server.key -out certs/server.cert
-Keep the paths to server.key and server.cert handy for the .env files.
-```
 
-## ⚙️ Step 3: Backend Setup & Execution
-Open a terminal and navigate to the backend directory:
 
-```
-cd backend
-npm install
-```
+* **Personal Content Management**:
+* Upload your own sunrise and sunset photography.
 
-Create a .env file in the backend folder and add the following:
-```
-Code snippet
-NODE_ENV=production
-PORT=3000
-MONGO_URI=mongodb://admin:your_secure_password@localhost:27017/sunshare_db
-JWT_SECRET=super_secret_jwt_key
-JWT_REFRESH_SECRET=super_secret_refresh_key
-AI_API_KEY=your_gemini_or_chatgpt_api_key
-SSL_KEY_PATH=../certs/server.key
-SSL_CERT_PATH=../certs/server.cert
-Compile TypeScript to JavaScript:
-```
 
-```
-npm run build
-```
-Run the Unit Tests (Mandatory before starting/merging):
+* Maintain a personal history of uploaded photos.
 
-```
-npm test
-```
 
-Start the server in the background using PM2:
-```
-pm2 start dist/app.js --name "sunshare-backend"
-pm2 save
-```
-The backend is now securely running in the background.
+* 
+**AI-Powered Validation**: Built-in validation ensures that all uploaded images are authentic sunrise or sunset photos.
 
-💻 Step 4: Frontend Setup & Execution
-Open a new terminal and navigate to the frontend directory:
 
-```
-cd frontend
-npm install
-```
 
-Create a .env file in the frontend folder:
-```
-Code snippet
-REACT_APP_API_BASE_URL=https://localhost:3000/api
-HTTPS=true
-SSL_CRT_FILE=../certs/server.cert
-SSL_KEY_FILE=../certs/server.key
-```
-Build the application for Production:
 
-```
-npm run build
-```
-Serve the Frontend:
-You can use a package like serve to run the built React app over HTTPS, or start your local dev server if you are actively coding:
+* **Sunrise & Sunset Assistant (AI-Powered)**:
+* Get help finding the ideal geographic spot for your next viewing.
 
-```
-npm start
-```
-🛑 Stopping the Application
-Because the backend runs in the background via PM2, closing the terminal will not stop it. To stop the backend gracefully:
 
-```
-pm2 stop sunshare-backend
-```
-To view the live server logs:
+* Identify the optimal time to arrive for the best experience.
 
-```
-pm2 logs sunshare-backend
-```
 
+
+
+* **User Management**:
+* Secure account registration, login, and logout functionality.
+* Login uses Google OAuth: set `VITE_GOOGLE_OAUTH_URL` in the frontend (see `frontend/.env.example`) to your backend's Google OAuth URL; the Login action redirects there directly.
+
+## Local setup (register / login with MongoDB)
+
+* **Backend**: Uses MongoDB at `localhost:27017` with database name **posts-app**. Set `MONGO_URI` in `backend/.env` (see `backend/.env.example`), e.g. `mongodb://localhost:27017/posts-app`, so register and login persist users to the DB.
+* **Frontend**: Set `VITE_API_BASE_URL` in `frontend/.env` (e.g. `https://localhost:3000/api`) so the UI sends register and login requests to the backend; user data is then stored in MongoDB.

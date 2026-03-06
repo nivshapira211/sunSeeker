@@ -1,7 +1,60 @@
 // src/services/postService.ts
+import { request, hasApiBaseUrl, getUploadsBaseUrl, ApiError } from './api';
 import { mockFeedData, type Photo } from '../data/mockFeed';
 
+const AUTH_TOKEN_KEY = 'authToken';
+
+function getStoredToken(): string | null {
+  return typeof localStorage !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+}
+
 const PAGE_SIZE = 10;
+
+/** Backend post shape (GET /posts). */
+interface ApiPost {
+  _id: string;
+  imageUrl?: string;
+  location?: string;
+  coordinates?: { lat: number; lng: number };
+  time?: string;
+  date?: string;
+  caption?: string;
+  user?: { _id: string; username?: string; avatar?: string };
+  likes?: unknown[];
+  type?: 'sunrise' | 'sunset';
+  exif?: { camera?: string; lens?: string; aperture?: string; iso?: string; shutter?: string };
+}
+
+function mapApiPostToPhoto(post: ApiPost): Photo {
+  const user = post.user;
+  const rawImageUrl = post.imageUrl ?? '';
+  const imageUrl =
+    rawImageUrl.startsWith('/') ? `${getUploadsBaseUrl()}${rawImageUrl}` : rawImageUrl;
+  return {
+    id: post._id,
+    imageUrl,
+    location: post.location ?? 'Unknown',
+    coordinates: post.coordinates ?? { lat: 0, lng: 0 },
+    time: post.time ?? '',
+    date: post.date ?? '',
+    caption: post.caption,
+    user: {
+      id: user?._id ?? '',
+      name: user?.username ?? 'Unknown',
+      avatar: user?.avatar ?? '',
+    },
+    likes: Array.isArray(post.likes) ? post.likes.length : 0,
+    comments: 0,
+    type: post.type === 'sunset' ? 'sunset' : 'sunrise',
+    exif: {
+      camera: post.exif?.camera ?? 'Unknown',
+      lens: post.exif?.lens ?? '',
+      aperture: post.exif?.aperture ?? '',
+      iso: post.exif?.iso ?? '',
+      shutter: post.exif?.shutter ?? '',
+    },
+  };
+}
 
 /** In-memory store for mock; clone so we can mutate (create/update/delete). */
 function getStore(): Photo[] {
@@ -20,14 +73,16 @@ export interface FeedPage {
 }
 
 export const getFeed = async (page: number): Promise<FeedPage> => {
-  await new Promise((r) => setTimeout(r, 600));
-  const store = getStore();
-  const start = (page - 1) * PAGE_SIZE;
-  const posts = store.slice(start, start + PAGE_SIZE);
-  return {
-    posts,
-    hasMore: start + posts.length < store.length,
-  };
+  if (hasApiBaseUrl()) {
+    const data = await request<{ posts: ApiPost[]; hasMore: boolean }>(
+      `/posts?page=${page}&limit=${PAGE_SIZE}`
+    );
+    return {
+      posts: (data.posts ?? []).map(mapApiPostToPhoto),
+      hasMore: data.hasMore ?? false,
+    };
+  }
+  return { posts: [], hasMore: false };
 };
 
 export const getPostsByUserId = async (userId: string): Promise<Photo[]> => {
@@ -54,6 +109,37 @@ export interface CreatePostPayload {
 }
 
 export const createPost = async (payload: CreatePostPayload): Promise<Photo> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to create a post.');
+
+    const formData = new FormData();
+    formData.append('caption', payload.text);
+    formData.append('location', payload.location ?? 'Unknown');
+    formData.append('date', payload.date ?? new Date().toLocaleDateString());
+    formData.append('time', payload.time ?? '00:00');
+    formData.append('type', payload.type ?? 'sunrise');
+    formData.append('coordinates', JSON.stringify({ lat: 0, lng: 0 }));
+    formData.append('exif', JSON.stringify({ camera: 'Unknown', lens: '', aperture: '', iso: '', shutter: '' }));
+
+    if (typeof payload.image === 'string') {
+      throw new Error('File upload required when using the API.');
+    }
+    formData.append('image', payload.image);
+
+    try {
+      const data = await request<ApiPost>('/posts', {
+        method: 'POST',
+        body: formData,
+        token,
+      });
+      return mapApiPostToPhoto(data);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : 'Failed to create post. Please try again.';
+      throw new Error(message);
+    }
+  }
+
   await new Promise((r) => setTimeout(r, 800));
   const store = getStore();
   const imageUrl =

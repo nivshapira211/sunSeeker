@@ -60,7 +60,9 @@ export const registerUser = async (req: Request, res: Response) => {
 export const loginUser = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
+  const user = await User.findOne({
+    $or: [{ username: username?.trim() }, { email: username?.trim() }],
+  });
 
   if (user && user.password && (await bcrypt.compare(password, user.password))) {
     const token = generateToken(user._id.toString());

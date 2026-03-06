@@ -60,12 +60,13 @@ export const searchPosts = async (req: Request, res: Response) => {
 
 export const createPost = async (req: AuthRequest, res: Response) => {
   const { caption, location, time, date, type, coordinates, exif } = req.body;
-  const imageUrl = req.file ? req.file.path : undefined;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+  const imagePathForAi = req.file ? req.file.path : undefined;
 
   try {
     let detectedType = type;
-    if (!detectedType && imageUrl) {
-      const aiResult = await detectSunriseSunset(imageUrl);
+    if (!detectedType && imagePathForAi) {
+      const aiResult = await detectSunriseSunset(imagePathForAi);
       detectedType = aiResult.type === 'unknown' ? 'sunrise' : aiResult.type;
     }
 
@@ -142,7 +143,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
       post.type = req.body.type || post.type;
       
       if (req.file) {
-        post.imageUrl = req.file.path;
+        post.imageUrl = `/uploads/${req.file.filename}`;
       }
 
       const updatedPost = await post.save();

@@ -28,8 +28,8 @@ app.use(passport.initialize());
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-// Static files for uploads
-app.use('/src/uploads', express.static(path.join(__dirname, 'uploads')));
+// Static files for uploads (same directory as multer destination)
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);

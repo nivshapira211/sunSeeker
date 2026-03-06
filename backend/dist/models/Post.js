@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const PostSchema = new mongoose_1.Schema({
-    imageUrl: { type: String, required: true },
+    imageUrl: { type: String },
     location: { type: String, default: 'Unknown' },
     coordinates: {
         lat: { type: Number, default: 0 },
@@ -55,4 +55,5 @@ const PostSchema = new mongoose_1.Schema({
         shutter: { type: String, default: '' },
     },
 }, { timestamps: true });
+PostSchema.index({ caption: 'text', location: 'text' });
 exports.default = mongoose_1.default.model('Post', PostSchema);

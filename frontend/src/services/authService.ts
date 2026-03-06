@@ -18,17 +18,31 @@ function getStoredToken(): string | null {
   return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 }
 
+/** Backend returns user with username; we map to ApiUser (name) for display. */
+function toAuthResponse(raw: { user: { id: string; username: string; email: string; avatar?: string }; token: string; refreshToken: string }): AuthResponse {
+  return {
+    user: {
+      id: String(raw.user.id),
+      name: raw.user.username,
+      email: raw.user.email,
+      avatar: raw.user.avatar,
+    },
+    token: raw.token,
+    refreshToken: raw.refreshToken,
+  };
+}
+
 /**
  * Login: uses real API when VITE_API_BASE_URL is set, otherwise mock.
  */
 export const login = async (username: string, password?: string): Promise<AuthResponse> => {
   if (hasApiBaseUrl()) {
     try {
-      const data = await request<AuthResponse>('/auth/login', {
+      const data = await request<{ user: { id: string; username: string; email: string; avatar?: string }; token: string; refreshToken: string }>('/auth/login', {
         method: 'POST',
-        body: { username, password },
+        body: { username: username?.trim(), password },
       });
-      return data;
+      return toAuthResponse(data);
     } catch (err) {
       const message = err instanceof ApiError ? err.message : 'Invalid username or password';
       throw new Error(message);
@@ -53,14 +67,14 @@ export const login = async (username: string, password?: string): Promise<AuthRe
 };
 
 /**
- * Register: uses real API when base URL is set, otherwise mock.
+ * Register: uses real API when base URL is set, otherwise mock. Returns full auth payload when API is used.
  */
 export const register = async (
   username: string,
   email: string,
   password?: string,
   avatar?: File | null
-): Promise<ApiUser> => {
+): Promise<AuthResponse> => {
   if (hasApiBaseUrl()) {
     try {
       const formData = new FormData();
@@ -68,12 +82,12 @@ export const register = async (
       formData.append('email', email);
       if (password) formData.append('password', password);
       if (avatar) formData.append('avatar', avatar);
-      const data = await request<ApiUser>('/auth/register', {
+      const data = await request<{ user: { id: string; username: string; email: string; avatar?: string }; token: string; refreshToken: string }>('/auth/register', {
         method: 'POST',
         body: formData,
         headers: {},
       });
-      return data;
+      return toAuthResponse(data);
     } catch (err) {
       const message = err instanceof ApiError ? err.message : 'Registration failed. Please try again.';
       throw new Error(message);
@@ -87,7 +101,11 @@ export const register = async (
     email,
     avatar: avatar ? URL.createObjectURL(avatar) : `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=random`,
   };
-  return newUser;
+  return {
+    user: newUser,
+    token: 'mock_jwt_token_string',
+    refreshToken: 'mock_refresh_token_string',
+  };
 };
 
 /**

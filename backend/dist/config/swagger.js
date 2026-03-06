@@ -33,7 +33,7 @@ const options = {
             },
         ],
     },
-    apis: ['./src/routes/*.ts'], // Path to the API docs
+    apis: ['./src/routes/*.ts', './dist/routes/*.js'], // Path to the API docs
 };
 const specs = (0, swagger_jsdoc_1.default)(options);
 exports.default = specs;

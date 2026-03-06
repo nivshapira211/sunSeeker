@@ -1,15 +1,23 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import * as authService from '../services/authService';
-import { type ApiUser } from '../services/authService';
 
-// The User interface can be the same as ApiUser for consistency
-type User = ApiUser;
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+}
+
+const AUTH_TOKEN_KEY = 'authToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
+const USER_KEY = 'sunseeker_user';
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
-    login: (username: string, password: string, keepLoggedIn: boolean) => Promise<void>;
+    login: (emailOrUsername: string, password: string) => Promise<void>;
     register: (username: string, email: string, password: string, avatar?: File | null) => Promise<void>;
+    loginWithGoogle: () => void;
     logout: () => void;
     updateProfile: (name: string, avatar?: string) => Promise<void>;
     isLoading: boolean;
@@ -17,40 +25,42 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function storeSession(token: string, refreshToken: string, user: User): void {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+function clearSession(): void {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const initializeAuth = async () => {
-            const storedToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-            const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-
-            if (storedToken && storedUser) {
-                // TODO: Add token validation logic here. If the token is expired,
-                // you might want to use the refresh token to get a new one.
+        const token = localStorage.getItem(AUTH_TOKEN_KEY);
+        const storedUser = localStorage.getItem(USER_KEY);
+        if (token && storedUser) {
+            try {
                 setUser(JSON.parse(storedUser));
+            } catch {
+                clearSession();
             }
-            setIsLoading(false);
-        };
-        initializeAuth();
+        }
+        setIsLoading(false);
     }, []);
 
-    const login = async (username: string, password: string, keepLoggedIn: boolean) => {
+    const login = async (emailOrUsername: string, password: string) => {
         setIsLoading(true);
         try {
-            const { user: apiUser, token, refreshToken } = await authService.login(username, password);
-            
-            const storage = keepLoggedIn ? localStorage : sessionStorage;
-            storage.setItem('authToken', token);
-            storage.setItem('refreshToken', refreshToken);
-            storage.setItem('user', JSON.stringify(apiUser));
-            
-            setUser(apiUser);
-        } catch (error) {
-            console.error("Login failed:", error);
-            // Re-throw the error so the UI component can handle it
-            throw error;
+            const res = await authService.login(emailOrUsername, password);
+            const userData: User = { id: res.user.id, name: res.user.name, email: res.user.email, avatar: res.user.avatar };
+            setUser(userData);
+            storeSession(res.token, res.refreshToken, userData);
         } finally {
             setIsLoading(false);
         }
@@ -59,50 +69,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const register = async (username: string, email: string, password: string, avatar?: File | null) => {
         setIsLoading(true);
         try {
-            // The service returns the new user, but typically we don't auto-login.
-            // The user will be redirected to the login page after successful registration.
-            await authService.register(username, email, password, avatar);
-        } catch (error) {
-            console.error("Registration failed:", error);
-            throw error;
+            const res = await authService.register(username, email, password, avatar);
+            const userData: User = { id: res.user.id, name: res.user.name, email: res.user.email, avatar: res.user.avatar };
+            setUser(userData);
+            storeSession(res.token, res.refreshToken, userData);
         } finally {
             setIsLoading(false);
         }
     };
 
+    const loginWithGoogle = useCallback(() => {
+        const url = import.meta.env.VITE_GOOGLE_OAUTH_URL;
+        if (url) {
+            window.location.href = url;
+        } else {
+            console.warn('VITE_GOOGLE_OAUTH_URL is not set');
+        }
+    }, []);
+
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        sessionStorage.removeItem('authToken');
-        sessionStorage.removeItem('refreshToken');
-        sessionStorage.removeItem('user');
-        // Optional: Redirect to login or home page after logout
-        // window.location.href = '/login';
+        clearSession();
     };
 
     const updateProfile = async (name: string, avatar?: string) => {
         if (!user) return;
-        setIsLoading(true);
-        try {
-            const updated = await authService.updateProfile(user.id, {
-                name,
-                avatar: avatar || user.avatar,
-            });
-            const updatedUser = { ...user, ...updated, email: user.email };
-            const storage = localStorage.getItem('authToken') ? localStorage : sessionStorage;
-            storage.setItem('user', JSON.stringify(updatedUser));
-            setUser(updatedUser);
-        } catch (error) {
-            throw error;
-        } finally {
-            setIsLoading(false);
-        }
+
+        const updatedUser = { ...user, name, avatar: avatar || user.avatar };
+        setUser(updatedUser);
+        localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+
+        await authService.updateProfile(user.id, { name, avatar });
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, updateProfile, isLoading }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, loginWithGoogle, logout, updateProfile, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

@@ -82,15 +82,19 @@ const Navbar: React.FC = () => {
                             </button>
                         </div>
                     ) : (
-                        <NavLink to="/login" className="glass-button" style={{
-                            padding: 'var(--spacing-xs) var(--spacing-md)',
-                            borderRadius: 'var(--radius-full)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--spacing-xs)',
-                            fontSize: '0.9rem',
-                            textDecoration: 'none'
-                        }}>
+                        <NavLink
+                            to="/login"
+                            className="glass-button"
+                            style={{
+                                padding: 'var(--spacing-xs) var(--spacing-md)',
+                                borderRadius: 'var(--radius-full)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--spacing-xs)',
+                                fontSize: '0.9rem',
+                                textDecoration: 'none'
+                            }}
+                        >
                             <LogIn size={16} />
                             <span>Login</span>
                         </NavLink>

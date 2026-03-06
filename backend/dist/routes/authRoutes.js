@@ -5,8 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const passport_1 = __importDefault(require("passport"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const authController_1 = require("../controllers/authController");
 const uploadMiddleware_1 = __importDefault(require("../middleware/uploadMiddleware"));
+dotenv_1.default.config();
 const router = express_1.default.Router();
 /**
  * @swagger
@@ -110,5 +112,5 @@ router.get('/google', passport_1.default.authenticate('google', { scope: ['profi
  *       302:
  *         description: Redirect to frontend
  */
-router.get('/google/callback', passport_1.default.authenticate('google', { failureRedirect: '/login' }), authController_1.googleCallback);
+router.get('/google/callback', passport_1.default.authenticate('google', { failureRedirect: process.env.CLIENT_URL ? `${process.env.CLIENT_URL}/login` : 'http://localhost:5173/login' }), authController_1.googleCallback);
 exports.default = router;

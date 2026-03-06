@@ -44,3 +44,5 @@ AGENTS.md
 GEMINI.md
 server.key
 server.cert
+!ssl/server.key
+!ssl/server.crt

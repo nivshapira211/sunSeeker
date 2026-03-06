@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { MapPin, Calendar, Mail, Edit, Settings } from 'lucide-react';
+import { MapPin, Calendar, Mail, Edit } from 'lucide-react';
 import { getPostsByUserId } from '../services/postService'; // Import the service
 import { type Photo } from '../data/mockFeed'; // Import the Photo type
 import FeedCard from '../components/feed/FeedCard';
@@ -8,7 +8,6 @@ import './Profile.css';
 
 const Profile: React.FC = () => {
     const { user, updateProfile, isLoading: authIsLoading } = useAuth();
-    const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
     const [isEditing, setIsEditing] = useState(false);
     
     // State for profile edits
@@ -102,9 +101,6 @@ const Profile: React.FC = () => {
                             <h1>{user.name}</h1>
                             <p className="username">@{user.name.toLowerCase().replace(/\s+/g, '')}</p>
                             <p className="email flex-center" style={{ gap: 'var(--spacing-xs)' }}><Mail size={14} /> {user.email}</p>
-                            <p className="profile-bio">
-                                Sunrise chaser 🌅 | Photography enthusiast 📸 | Seeking the perfect light.
-                            </p>
                             <div className="profile-meta">
                                 <span className="profile-meta-item"><MapPin size={16} /> Global Nomad</span>
                                 <span className="profile-meta-item"><Calendar size={16} /> Joined Jan 2026</span>
@@ -115,48 +111,22 @@ const Profile: React.FC = () => {
                             <button className="glass-button glass-button-hover" onClick={() => setIsEditing(true)}>
                                 <Edit size={16} /> Edit Profile
                             </button>
-                            <button className="glass-button glass-button-hover" style={{ padding: '8px', borderRadius: '50%' }}>
-                                <Settings size={18} />
-                            </button>
                         </div>
                     </div>
                     <div className="profile-stats">
                         <div className="profile-stat-item">
                             <div className="stat-number text-gradient">{postsLoading ? '...' : userPosts.length}</div>
-                            <div className="stat-label">Sunrises</div>
-                        </div>
-                        <div className="profile-stat-item">
-                            <div className="stat-number text-gradient">1.2k</div>
-                            <div className="stat-label">Followers</div>
-                        </div>
-                        <div className="profile-stat-item">
-                            <div className="stat-number text-gradient">350</div>
-                            <div className="stat-label">Following</div>
+                            <div className="stat-label">Posts</div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <div className="profile-tabs">
-                <button
-                    onClick={() => setActiveTab('posts')}
-                    className={`profile-tab ${activeTab === 'posts' ? 'active' : 'inactive'}`}
-                >
-                    My Sunrises
-                </button>
-                <button
-                    onClick={() => setActiveTab('saved')}
-                    className={`profile-tab ${activeTab === 'saved' ? 'active' : 'inactive'}`}
-                >
-                    Saved
-                </button>
-            </div>
-
             {postsLoading ? (
                 <div className="flex-center" style={{ minHeight: '200px' }}>Loading posts...</div>
             ) : (
                 <div className="grid-responsive">
-                    {activeTab === 'posts' && userPosts.map((photo) => (
+                    {userPosts.map((photo) => (
                         <FeedCard
                             key={photo.id}
                             photo={photo}
@@ -165,10 +135,9 @@ const Profile: React.FC = () => {
                             onUpdated={(updated) => setUserPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))}
                         />
                     ))}
-                    {activeTab === 'posts' && userPosts.length === 0 && (
+                    {userPosts.length === 0 && (
                         <p>You haven't posted any sunrises yet.</p>
                     )}
-                    {/* Add a section for saved posts if needed */}
                 </div>
             )}
 

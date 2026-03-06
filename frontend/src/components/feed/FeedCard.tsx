@@ -4,11 +4,6 @@ import {
   MessageCircle,
   MapPin,
   Clock,
-  Share2,
-  Info,
-  Camera,
-  Aperture,
-  Eye,
   Pencil,
   Trash2,
   X,
@@ -40,7 +35,6 @@ const FeedCard: React.FC<FeedCardProps> = ({
   onLikeChange,
 }) => {
   const { user } = useAuth();
-  const [showDetails, setShowDetails] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editCaption, setEditCaption] = useState(photo.caption ?? '');
   const [isSaving, setIsSaving] = useState(false);
@@ -289,51 +283,6 @@ const FeedCard: React.FC<FeedCardProps> = ({
           </div>
         )}
 
-        {/* EXIF Details Expandable Section */}
-        {showDetails && (
-          <div
-            className="animate-fade-in"
-            style={{
-              background: 'rgba(0,0,0,0.3)',
-              padding: 'var(--spacing-md)',
-              borderTop: '1px solid rgba(255,255,255,0.05)',
-              borderBottom: '1px solid rgba(255,255,255,0.05)',
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 'var(--spacing-md)',
-              fontSize: '0.85rem',
-              color: 'var(--color-text-secondary)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Camera size={16} />
-              <span>{photo.exif.camera}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Aperture size={16} />
-              <span>{photo.exif.aperture}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span
-                style={{
-                  fontWeight: 700,
-                  fontSize: '0.8rem',
-                  border: '1px solid currentColor',
-                  borderRadius: '3px',
-                  padding: '0 2px',
-                }}
-              >
-                ISO
-              </span>
-              <span>{photo.exif.iso}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Eye size={16} />
-              <span>{photo.exif.shutter}</span>
-            </div>
-          </div>
-        )}
-
         {/* Action Bar */}
         <div
           style={{
@@ -377,40 +326,6 @@ const FeedCard: React.FC<FeedCardProps> = ({
             >
               <MessageCircle size={24} />
               <span style={{ fontWeight: 600 }}>{photo.comments}</span>
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-            <button
-              type="button"
-              onClick={() => setShowDetails(!showDetails)}
-              style={{
-                background: showDetails ? 'rgba(255,255,255,0.1)' : 'transparent',
-                borderRadius: '50%',
-                width: '40px',
-                height: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: 'none',
-                color: showDetails
-                  ? 'var(--color-primary)'
-                  : 'var(--color-text-primary)',
-                transition: 'var(--transition-base)',
-              }}
-            >
-              <Info size={24} />
-            </button>
-            <button
-              type="button"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--color-text-primary)',
-              }}
-              className="glass-button-hover active-scale"
-            >
-              <Share2 size={24} />
             </button>
           </div>
         </div>

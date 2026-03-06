@@ -47,3 +47,8 @@ The app also offers personalized suggestions for nearby viewing spots and optima
 * **User Management**:
 * Secure account registration, login, and logout functionality.
 * Login uses Google OAuth: set `VITE_GOOGLE_OAUTH_URL` in the frontend (see `frontend/.env.example`) to your backend's Google OAuth URL; the Login action redirects there directly.
+
+## Local setup (register / login with MongoDB)
+
+* **Backend**: Uses MongoDB at `localhost:27017` with database name **posts-app**. Set `MONGO_URI` in `backend/.env` (see `backend/.env.example`), e.g. `mongodb://localhost:27017/posts-app`, so register and login persist users to the DB.
+* **Frontend**: Set `VITE_API_BASE_URL` in `frontend/.env` (e.g. `https://localhost:3000/api`) so the UI sends register and login requests to the backend; user data is then stored in MongoDB.

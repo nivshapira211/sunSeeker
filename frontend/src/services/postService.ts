@@ -1,7 +1,51 @@
 // src/services/postService.ts
+import { request, hasApiBaseUrl } from './api';
 import { mockFeedData, type Photo } from '../data/mockFeed';
 
 const PAGE_SIZE = 10;
+
+/** Backend post shape (GET /posts). */
+interface ApiPost {
+  _id: string;
+  imageUrl?: string;
+  location?: string;
+  coordinates?: { lat: number; lng: number };
+  time?: string;
+  date?: string;
+  caption?: string;
+  user?: { _id: string; username?: string; avatar?: string };
+  likes?: unknown[];
+  type?: 'sunrise' | 'sunset';
+  exif?: { camera?: string; lens?: string; aperture?: string; iso?: string; shutter?: string };
+}
+
+function mapApiPostToPhoto(post: ApiPost): Photo {
+  const user = post.user;
+  return {
+    id: post._id,
+    imageUrl: post.imageUrl ?? '',
+    location: post.location ?? 'Unknown',
+    coordinates: post.coordinates ?? { lat: 0, lng: 0 },
+    time: post.time ?? '',
+    date: post.date ?? '',
+    caption: post.caption,
+    user: {
+      id: user?._id ?? '',
+      name: user?.username ?? 'Unknown',
+      avatar: user?.avatar ?? '',
+    },
+    likes: Array.isArray(post.likes) ? post.likes.length : 0,
+    comments: 0,
+    type: post.type === 'sunset' ? 'sunset' : 'sunrise',
+    exif: {
+      camera: post.exif?.camera ?? 'Unknown',
+      lens: post.exif?.lens ?? '',
+      aperture: post.exif?.aperture ?? '',
+      iso: post.exif?.iso ?? '',
+      shutter: post.exif?.shutter ?? '',
+    },
+  };
+}
 
 /** In-memory store for mock; clone so we can mutate (create/update/delete). */
 function getStore(): Photo[] {
@@ -20,14 +64,16 @@ export interface FeedPage {
 }
 
 export const getFeed = async (page: number): Promise<FeedPage> => {
-  await new Promise((r) => setTimeout(r, 600));
-  const store = getStore();
-  const start = (page - 1) * PAGE_SIZE;
-  const posts = store.slice(start, start + PAGE_SIZE);
-  return {
-    posts,
-    hasMore: start + posts.length < store.length,
-  };
+  if (hasApiBaseUrl()) {
+    const data = await request<{ posts: ApiPost[]; hasMore: boolean }>(
+      `/posts?page=${page}&limit=${PAGE_SIZE}`
+    );
+    return {
+      posts: (data.posts ?? []).map(mapApiPostToPhoto),
+      hasMore: data.hasMore ?? false,
+    };
+  }
+  return { posts: [], hasMore: false };
 };
 
 export const getPostsByUserId = async (userId: string): Promise<Photo[]> => {

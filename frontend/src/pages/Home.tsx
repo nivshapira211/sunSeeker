@@ -88,6 +88,12 @@ const Home: React.FC = () => {
         </div>
       )}
 
+      {!loading && posts.length === 0 && !error && (
+        <div style={{ textAlign: 'center', padding: 'var(--spacing-2xl)', color: 'var(--color-text-secondary)' }}>
+          <p>No posts yet. Share a sunrise or sunset!</p>
+        </div>
+      )}
+
       {hasMore && posts.length > 0 && (
         <div style={{ textAlign: 'center', margin: 'var(--spacing-xl) 0' }}>
           <button

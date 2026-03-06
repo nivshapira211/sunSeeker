@@ -12,8 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserProfile = void 0;
+exports.updateUserProfile = exports.getMe = void 0;
 const User_1 = __importDefault(require("../models/User"));
+const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_1.default.findById(req.user._id).select('-password');
+        if (user) {
+            res.json(user);
+        }
+        else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error retrieving profile' });
+    }
+});
+exports.getMe = getMe;
 const updateUserProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User_1.default.findById(req.user._id);

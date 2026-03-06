@@ -12,23 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addComment = exports.getComments = exports.toggleLike = exports.deletePost = exports.updatePost = exports.getPostById = exports.createPost = exports.getPosts = void 0;
+exports.addComment = exports.getComments = exports.toggleLike = exports.deletePost = exports.updatePost = exports.getPostById = exports.getPostsByUserId = exports.createPost = exports.searchPosts = exports.getPosts = void 0;
 const Post_1 = __importDefault(require("../models/Post"));
 const Comment_1 = __importDefault(require("../models/Comment"));
 const aiService_1 = require("../services/aiService");
 const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10;
-    const skip = (page - 1) * pageSize;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     try {
         const totalCount = yield Post_1.default.countDocuments();
         const posts = yield Post_1.default.find({})
             .populate('user', 'username avatar')
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(pageSize);
+            .limit(limit);
         res.json({
             posts,
+            totalCount,
             hasMore: skip + posts.length < totalCount,
         });
     }
@@ -37,16 +38,38 @@ const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getPosts = getPosts;
-const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { caption, location, time, date, type, coordinates, exif } = req.body;
-    const imageUrl = req.file ? req.file.path : undefined;
-    if (!imageUrl) {
-        res.status(400).json({ message: 'Please upload an image' });
+const searchPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query.q;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+    if (!query) {
+        res.status(400).json({ message: 'Search query is required' });
         return;
     }
     try {
+        const totalCount = yield Post_1.default.countDocuments({ $text: { $search: query } });
+        const posts = yield Post_1.default.find({ $text: { $search: query } })
+            .populate('user', 'username avatar')
+            .skip(skip)
+            .limit(pageSize);
+        res.json({
+            posts,
+            totalCount,
+            hasMore: skip + posts.length < totalCount,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error searching posts' });
+    }
+});
+exports.searchPosts = searchPosts;
+const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { caption, location, time, date, type, coordinates, exif } = req.body;
+    const imageUrl = req.file ? req.file.path : undefined;
+    try {
         let detectedType = type;
-        if (!detectedType) {
+        if (!detectedType && imageUrl) {
             const aiResult = yield (0, aiService_1.detectSunriseSunset)(imageUrl);
             detectedType = aiResult.type === 'unknown' ? 'sunrise' : aiResult.type;
         }
@@ -56,7 +79,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             location,
             time,
             date,
-            type: detectedType,
+            type: detectedType || 'sunrise', // Default to sunrise if not provided and no image
             coordinates: coordinates ? JSON.parse(coordinates) : { lat: 0, lng: 0 },
             exif: exif ? JSON.parse(exif) : { camera: 'Unknown', lens: '', aperture: '', iso: '', shutter: '' },
             user: req.user._id,
@@ -69,6 +92,29 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.createPost = createPost;
+const getPostsByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.userId;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+    try {
+        const totalCount = yield Post_1.default.countDocuments({ user: userId });
+        const posts = yield Post_1.default.find({ user: userId })
+            .populate('user', 'username avatar')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(pageSize);
+        res.json({
+            posts,
+            totalCount,
+            hasMore: skip + posts.length < totalCount,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error fetching user posts' });
+    }
+});
+exports.getPostsByUserId = getPostsByUserId;
 const getPostById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const post = yield Post_1.default.findById(req.params.id).populate('user', 'username avatar');
@@ -97,6 +143,9 @@ const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             post.time = req.body.time || post.time;
             post.date = req.body.date || post.date;
             post.type = req.body.type || post.type;
+            if (req.file) {
+                post.imageUrl = req.file.path;
+            }
             const updatedPost = yield post.save();
             res.json(updatedPost);
         }

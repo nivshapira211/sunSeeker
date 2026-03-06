@@ -28,8 +28,8 @@ app.use((0, morgan_1.default)('dev'));
 app.use(passport_1.default.initialize());
 // Swagger Documentation
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.default));
-// Static files for uploads
-app.use('/src/uploads', express_1.default.static(path_1.default.join(__dirname, 'uploads')));
+// Static files for uploads (same directory as multer destination)
+app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '..', 'uploads')));
 // Routes
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/posts', postRoutes_1.default);

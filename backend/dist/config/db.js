@@ -21,8 +21,7 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     }
     catch (error) {
-        console.error(`Error: ${error.message}`);
-        process.exit(1);
+        console.warn(`MongoDB connection failed: ${error.message}. Server will run but DB-dependent routes will fail until MongoDB is available.`);
     }
 });
 exports.default = connectDB;

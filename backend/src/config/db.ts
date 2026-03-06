@@ -8,8 +8,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGO_URI as string);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error: ${(error as Error).message}`);
-    process.exit(1);
+    console.warn(`MongoDB connection failed: ${(error as Error).message}. Server will run but DB-dependent routes will fail until MongoDB is available.`);
   }
 };
 

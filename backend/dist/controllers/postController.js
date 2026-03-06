@@ -66,11 +66,12 @@ const searchPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.searchPosts = searchPosts;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { caption, location, time, date, type, coordinates, exif } = req.body;
-    const imageUrl = req.file ? req.file.path : undefined;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const imagePathForAi = req.file ? req.file.path : undefined;
     try {
         let detectedType = type;
-        if (!detectedType && imageUrl) {
-            const aiResult = yield (0, aiService_1.detectSunriseSunset)(imageUrl);
+        if (!detectedType && imagePathForAi) {
+            const aiResult = yield (0, aiService_1.detectSunriseSunset)(imagePathForAi);
             detectedType = aiResult.type === 'unknown' ? 'sunrise' : aiResult.type;
         }
         const post = yield Post_1.default.create({
@@ -144,7 +145,7 @@ const updatePost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             post.date = req.body.date || post.date;
             post.type = req.body.type || post.type;
             if (req.file) {
-                post.imageUrl = req.file.path;
+                post.imageUrl = `/uploads/${req.file.filename}`;
             }
             const updatedPost = yield post.save();
             res.json(updatedPost);

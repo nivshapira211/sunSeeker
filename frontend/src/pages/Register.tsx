@@ -48,9 +48,7 @@ const Register: React.FC = () => {
         setIsLoading(true);
         try {
             await register(username, email, password, profilePic);
-            // Optionally, show a success message before navigating
-            alert('Registration successful! Please log in.');
-            navigate('/login');
+            navigate('/');
         } catch (err) {
             setError((err as Error).message || 'Registration failed. Please try again.');
         } finally {

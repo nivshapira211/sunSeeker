@@ -1,6 +1,12 @@
 // src/services/postService.ts
-import { request, hasApiBaseUrl } from './api';
+import { request, hasApiBaseUrl, getUploadsBaseUrl, ApiError } from './api';
 import { mockFeedData, type Photo } from '../data/mockFeed';
+
+const AUTH_TOKEN_KEY = 'authToken';
+
+function getStoredToken(): string | null {
+  return typeof localStorage !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+}
 
 const PAGE_SIZE = 10;
 
@@ -21,9 +27,12 @@ interface ApiPost {
 
 function mapApiPostToPhoto(post: ApiPost): Photo {
   const user = post.user;
+  const rawImageUrl = post.imageUrl ?? '';
+  const imageUrl =
+    rawImageUrl.startsWith('/') ? `${getUploadsBaseUrl()}${rawImageUrl}` : rawImageUrl;
   return {
     id: post._id,
-    imageUrl: post.imageUrl ?? '',
+    imageUrl,
     location: post.location ?? 'Unknown',
     coordinates: post.coordinates ?? { lat: 0, lng: 0 },
     time: post.time ?? '',
@@ -100,6 +109,37 @@ export interface CreatePostPayload {
 }
 
 export const createPost = async (payload: CreatePostPayload): Promise<Photo> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to create a post.');
+
+    const formData = new FormData();
+    formData.append('caption', payload.text);
+    formData.append('location', payload.location ?? 'Unknown');
+    formData.append('date', payload.date ?? new Date().toLocaleDateString());
+    formData.append('time', payload.time ?? '00:00');
+    formData.append('type', payload.type ?? 'sunrise');
+    formData.append('coordinates', JSON.stringify({ lat: 0, lng: 0 }));
+    formData.append('exif', JSON.stringify({ camera: 'Unknown', lens: '', aperture: '', iso: '', shutter: '' }));
+
+    if (typeof payload.image === 'string') {
+      throw new Error('File upload required when using the API.');
+    }
+    formData.append('image', payload.image);
+
+    try {
+      const data = await request<ApiPost>('/posts', {
+        method: 'POST',
+        body: formData,
+        token,
+      });
+      return mapApiPostToPhoto(data);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : 'Failed to create post. Please try again.';
+      throw new Error(message);
+    }
+  }
+
   await new Promise((r) => setTimeout(r, 800));
   const store = getStore();
   const imageUrl =

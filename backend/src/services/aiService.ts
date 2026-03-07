@@ -5,8 +5,8 @@ dotenv.config();
 
 const apiKey = process.env.AI_API_KEY;
 const genAI = apiKey && apiKey !== 'your_gemini_or_chatgpt_api_key' ? new GoogleGenerativeAI(apiKey) : null;
-/** Model ID for generateContent. Default gemini-1.5-flash (often has free-tier quota); override with GEMINI_MODEL. */
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+/** Model ID for generateContent. Default Gemini 3.1 Flash Lite; override with GEMINI_MODEL. */
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
 const FALLBACK_MODEL = 'gemini-2.0-flash';
 const CAPTION_QUOTA_MSG = "AI suggestion is unavailable right now (rate limit or quota). Try again in a minute or write your own caption.";
 

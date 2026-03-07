@@ -21,7 +21,6 @@ const Upload: React.FC = () => {
   const [location, setLocation] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [type, setType] = useState<'sunrise' | 'sunset'>('sunrise');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -89,7 +88,7 @@ const Upload: React.FC = () => {
         location: location || 'Unknown',
         date: date || new Date().toLocaleDateString(),
         time: time || '00:00',
-        type,
+        type: 'sunrise',
         userId: user.id,
         userName: user.name,
         userAvatar: user.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`,
@@ -115,7 +114,7 @@ const Upload: React.FC = () => {
       <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>
         <h1 className="text-gradient">Share Your Moment</h1>
         <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-sm)' }}>
-          Upload your sunrise or sunset photo to inspire others.
+          Upload your photo to inspire others.
         </p>
       </div>
 
@@ -344,41 +343,6 @@ const Upload: React.FC = () => {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 />
-              </div>
-            </div>
-
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '0.9rem',
-                }}
-              >
-                Type
-              </label>
-              <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="type"
-                    value="sunrise"
-                    checked={type === 'sunrise'}
-                    onChange={() => setType('sunrise')}
-                  />
-                  <span>Sunrise</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="type"
-                    value="sunset"
-                    checked={type === 'sunset'}
-                    onChange={() => setType('sunset')}
-                  />
-                  <span>Sunset</span>
-                </label>
               </div>
             </div>
 

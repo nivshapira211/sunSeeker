@@ -154,26 +154,35 @@ export const refreshToken = async (
 };
 
 /**
- * Update profile (PATCH /users/me). Used by Profile save.
+ * Update profile (PATCH /users/me). Sends multipart FormData: username and optional avatar File.
  */
 export const updateProfile = async (
   userId: string,
-  data: { name?: string; avatar?: string }
+  data: { name?: string; avatar?: File | string | null }
 ): Promise<ApiUser> => {
   if (hasApiBaseUrl()) {
     const token = getStoredToken();
-    const updated = await request<ApiUser>('/users/me', {
+    const formData = new FormData();
+    if (data.name != null) formData.append('username', data.name);
+    if (data.avatar instanceof File) formData.append('avatar', data.avatar);
+    const updated = await request<{ id: string; username: string; email: string; avatar?: string }>('/users/me', {
       method: 'PATCH',
-      body: data,
+      body: formData,
+      headers: {},
       token,
     });
-    return updated;
+    return {
+      id: updated.id,
+      name: updated.username,
+      email: updated.email,
+      avatar: updated.avatar,
+    };
   }
   await new Promise((resolve) => setTimeout(resolve, 500));
   return {
     id: userId,
     name: data.name ?? '',
     email: '',
-    avatar: data.avatar,
+    avatar: data.avatar instanceof File ? undefined : data.avatar ?? undefined,
   } as ApiUser;
 };

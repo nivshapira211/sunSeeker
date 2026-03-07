@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Upload from './pages/Upload';
 import Assistant from './pages/Assistant';
 import Profile from './pages/Profile';
+import AuthSuccess from './pages/AuthSuccess';
 import './App.css';
 
 import { AuthProvider } from './context/AuthContext';
@@ -21,6 +22,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/auth/success" element={<AuthSuccess />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/assistant" element={<Assistant />} />
             <Route path="/profile" element={<Profile />} />

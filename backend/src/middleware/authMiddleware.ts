@@ -19,6 +19,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     } catch (error) {
       console.error(error);
       res.status(401).json({ message: 'Not authorized, token failed' });
+      return;
     }
   }
 

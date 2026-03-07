@@ -19,7 +19,7 @@ interface AuthContextType {
     register: (username: string, email: string, password: string, avatar?: File | null) => Promise<void>;
     loginWithGoogle: () => void;
     logout: () => void;
-    updateProfile: (name: string, avatar?: string) => Promise<void>;
+    updateProfile: (name: string, avatar?: File | string | null) => Promise<void>;
     isLoading: boolean;
 }
 
@@ -92,14 +92,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         clearSession();
     };
 
-    const updateProfile = async (name: string, avatar?: string) => {
+    const updateProfile = async (name: string, avatar?: File | string | null) => {
         if (!user) return;
 
-        const updatedUser = { ...user, name, avatar: avatar || user.avatar };
+        const updated = await authService.updateProfile(user.id, { name, avatar });
+        const updatedUser: User = { id: updated.id, name: updated.name, email: updated.email, avatar: updated.avatar };
         setUser(updatedUser);
         localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
-
-        await authService.updateProfile(user.id, { name, avatar });
     };
 
     return (

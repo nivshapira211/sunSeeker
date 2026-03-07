@@ -10,9 +10,10 @@ const Profile: React.FC = () => {
     const { user, updateProfile, isLoading: authIsLoading } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     
-    // State for profile edits
+    // State for profile edits (editAvatar = preview URL, editAvatarFile = new file to upload)
     const [editName, setEditName] = useState('');
     const [editAvatar, setEditAvatar] = useState<string | undefined>(undefined);
+    const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
 
@@ -44,6 +45,7 @@ const Profile: React.FC = () => {
         if (isEditing && user) {
             setEditName(user.name);
             setEditAvatar(user.avatar);
+            setEditAvatarFile(null);
         }
     }, [isEditing, user]);
 
@@ -52,7 +54,7 @@ const Profile: React.FC = () => {
             setSaveError(null);
             setIsSaving(true);
             try {
-                await updateProfile(editName, editAvatar);
+                await updateProfile(editName, editAvatarFile ?? editAvatar);
                 setIsEditing(false);
             } catch (err) {
                 setSaveError(err instanceof Error ? err.message : 'Failed to save profile. Please try again.');
@@ -65,6 +67,7 @@ const Profile: React.FC = () => {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setEditAvatarFile(file);
             const reader = new FileReader();
             reader.onloadend = () => setEditAvatar(reader.result as string);
             reader.readAsDataURL(file);

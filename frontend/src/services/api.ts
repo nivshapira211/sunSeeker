@@ -24,6 +24,18 @@ export function getUploadsBaseUrl(): string {
   return b.replace(/\/api\/?$/i, '').replace(/\/$/, '') || b;
 }
 
+/** Resolve relative upload path or full URL to absolute backend URL for img src. */
+export function getAbsoluteUploadUrl(pathOrUrl: string | undefined): string {
+  if (!pathOrUrl) return '';
+  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://') || pathOrUrl.startsWith('data:')) {
+    return pathOrUrl;
+  }
+  const base = getUploadsBaseUrl();
+  if (!base) return pathOrUrl;
+  const path = pathOrUrl.startsWith('/') ? pathOrUrl : '/' + pathOrUrl;
+  return base + path;
+}
+
 export class ApiError extends Error {
   status?: number;
   body?: unknown;

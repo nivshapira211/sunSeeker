@@ -17,6 +17,7 @@ import {
   addComment as addCommentService,
   type Comment,
 } from '../../services/postService';
+import { getAbsoluteUploadUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface FeedCardProps {
@@ -152,7 +153,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <img
-              src={photo.user.avatar}
+              src={getAbsoluteUploadUrl(photo.user.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(photo.user.name)}`}
               alt={photo.user.name}
               style={{
                 width: '40px',

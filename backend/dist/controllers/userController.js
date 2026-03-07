@@ -18,7 +18,12 @@ const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User_1.default.findById(req.user._id).select('-password');
         if (user) {
-            res.json(user);
+            res.json({
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+            });
         }
         else {
             res.status(404).json({ message: 'User not found' });

@@ -2,7 +2,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const uploadsDir = path.join(__dirname, '..', 'uploads');
+// Use project root /uploads so same path whether running from src/ or dist/
+const uploadsDir = path.join(process.cwd(), 'uploads');
 try {
   fs.mkdirSync(uploadsDir, { recursive: true });
 } catch {

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { MapPin, Calendar, Mail, Edit } from 'lucide-react';
-import { getPostsByUserId } from '../services/postService'; // Import the service
-import { type Photo } from '../data/mockFeed'; // Import the Photo type
+import { getPostsByUserId } from '../services/postService';
+import { type Photo } from '../data/mockFeed';
 import FeedCard from '../components/feed/FeedCard';
+import { getAbsoluteUploadUrl } from '../services/api';
 import './Profile.css';
 
 const Profile: React.FC = () => {
@@ -94,7 +95,7 @@ const Profile: React.FC = () => {
                     <div className="profile-main-info">
                          <div className="profile-avatar-wrapper">
                             <img
-                                src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
+                                src={getAbsoluteUploadUrl(user.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
                                 alt={user.name}
                                 className="profile-avatar"
                             />
@@ -154,7 +155,7 @@ const Profile: React.FC = () => {
                     )}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-md)' }}>
                                 <img
-                                    src={editAvatar || user.avatar}
+                                    src={getAbsoluteUploadUrl(editAvatar || user.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(editName || user.name)}`}
                                     alt="Preview"
                                     style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
                                 />

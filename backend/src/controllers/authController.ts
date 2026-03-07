@@ -17,7 +17,7 @@ export const generateRefreshToken = (id: string) => {
 
 export const registerUser = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
-  const avatar = req.file ? req.file.path : undefined;
+  const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
 
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
 

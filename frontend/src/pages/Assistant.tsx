@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, User, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getAbsoluteUploadUrl } from '../services/api';
 
 interface Message {
     id: string;
@@ -104,8 +105,8 @@ const Assistant: React.FC = () => {
                                     flexShrink: 0
                                 }}>
                                     {msg.sender === 'user' ? (
-                                        user?.avatar ?
-                                            <img src={user.avatar} style={{ width: '100%', height: '100%', borderRadius: '50%' }} alt="You" /> :
+                                        getAbsoluteUploadUrl(user?.avatar) ?
+                                            <img src={getAbsoluteUploadUrl(user?.avatar)} style={{ width: '100%', height: '100%', borderRadius: '50%' }} alt="You" /> :
                                             <User size={16} />
                                     ) : (
                                         <Sun size={18} className="text-gradient" />

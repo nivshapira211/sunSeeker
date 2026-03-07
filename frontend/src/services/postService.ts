@@ -29,7 +29,13 @@ function mapApiPostToPhoto(post: ApiPost): Photo {
   const user = post.user;
   const rawImageUrl = post.imageUrl ?? '';
   const imageUrl =
-    rawImageUrl.startsWith('/') ? `${getUploadsBaseUrl()}${rawImageUrl}` : rawImageUrl;
+    !rawImageUrl
+      ? ''
+      : rawImageUrl.startsWith('http://') || rawImageUrl.startsWith('https://')
+        ? rawImageUrl
+        : getUploadsBaseUrl()
+          ? getUploadsBaseUrl() + (rawImageUrl.startsWith('/') ? rawImageUrl : '/' + rawImageUrl)
+          : rawImageUrl;
   return {
     id: post._id,
     imageUrl,
@@ -86,6 +92,12 @@ export const getFeed = async (page: number): Promise<FeedPage> => {
 };
 
 export const getPostsByUserId = async (userId: string): Promise<Photo[]> => {
+  if (hasApiBaseUrl()) {
+    const data = await request<{ posts: ApiPost[]; totalCount?: number; hasMore?: boolean }>(
+      `/posts/user/${userId}?page=1&limit=${PAGE_SIZE}`
+    );
+    return (data.posts ?? []).map(mapApiPostToPhoto);
+  }
   await new Promise((r) => setTimeout(r, 800));
   const store = getStore();
   return store.filter((p) => p.user.id === userId);

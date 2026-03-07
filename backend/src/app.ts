@@ -17,7 +17,10 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: false,
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
 }));
@@ -28,8 +31,8 @@ app.use(passport.initialize());
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-// Static files for uploads (same directory as multer destination)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Static files for uploads (must match uploadMiddleware: both use process.cwd()/uploads)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);

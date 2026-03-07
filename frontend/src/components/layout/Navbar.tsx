@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Sun, Upload, MessageCircle, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { getAbsoluteUploadUrl } from '../../services/api';
 
 const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
@@ -67,7 +68,7 @@ const Navbar: React.FC = () => {
                             <NavLink to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', textDecoration: 'none', color: 'inherit' }}>
                                 <span className="hidden-mobile" style={{ fontSize: '0.9rem' }}>{user.name}</span>
                                 <img
-                                    src={user.avatar}
+                                    src={getAbsoluteUploadUrl(user.avatar) || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
                                     alt={user.name}
                                     style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--color-primary)' }}
                                 />

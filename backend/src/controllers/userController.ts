@@ -31,7 +31,7 @@ export const updateUserProfile = async (req: AuthRequest, res: Response) => {
       user.username = req.body.username || user.username;
       user.email = req.body.email || user.email;
       if (req.file) {
-        user.avatar = req.file.path;
+        user.avatar = `/uploads/${req.file.filename}`;
       }
 
       if (req.body.password) {

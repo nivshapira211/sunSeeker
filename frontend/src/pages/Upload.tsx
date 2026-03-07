@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { Upload as UploadIcon, X, MapPin, Calendar, Clock } from 'lucide-react';
+import { Upload as UploadIcon, X, MapPin, Calendar, Clock, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createPost } from '../services/postService';
+import { getCaptionSuggestion } from '../services/recommendationService';
 
 const inputStyle = {
   width: '100%' as const,
@@ -23,6 +24,7 @@ const Upload: React.FC = () => {
   const [time, setTime] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuggestingCaption, setIsSuggestingCaption] = useState(false);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
@@ -63,6 +65,23 @@ const Upload: React.FC = () => {
     setSelectedFile(null);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
+  };
+
+  const handleSuggestCaption = async () => {
+    setError('');
+    setIsSuggestingCaption(true);
+    try {
+      const suggestion = await getCaptionSuggestion({
+        location: location || undefined,
+        type: 'sunrise',
+        image: selectedFile || undefined,
+      });
+      if (suggestion) setCaption(suggestion);
+    } catch {
+      setError('Could not get suggestion. Try again.');
+    } finally {
+      setIsSuggestingCaption(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -228,16 +247,37 @@ const Upload: React.FC = () => {
           {/* Metadata Form */}
           <div style={{ marginTop: 'var(--spacing-xl)', display: 'grid', gap: 'var(--spacing-lg)' }}>
             <div>
-              <label
-                style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '0.9rem',
-                }}
-              >
-                Caption (required)
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                <label
+                  style={{
+                    color: 'var(--color-text-secondary)',
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  Caption (required)
+                </label>
+                <button
+                  type="button"
+                  onClick={handleSuggestCaption}
+                  disabled={isSuggestingCaption}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    fontSize: '0.85rem',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'rgba(255,255,255,0.05)',
+                    color: 'var(--color-primary)',
+                    cursor: isSuggestingCaption ? 'not-allowed' : 'pointer',
+                    opacity: isSuggestingCaption ? 0.7 : 1,
+                  }}
+                >
+                  <Sparkles size={16} />
+                  {isSuggestingCaption ? 'Suggesting...' : 'Suggest with AI'}
+                </button>
+              </div>
               <textarea
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}

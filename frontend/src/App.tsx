@@ -10,12 +10,14 @@ import AuthSuccess from './pages/AuthSuccess';
 import './App.css';
 
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
+        <ToastProvider>
         <BrowserRouter>
         <Routes>
           <Route element={<MainLayout />}>
@@ -29,6 +31,7 @@ function App() {
           </Route>
         </Routes>
         </BrowserRouter>
+        </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

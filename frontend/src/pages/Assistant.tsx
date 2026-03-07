@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, User, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { getAbsoluteUploadUrl } from '../services/api';
 import { sendAssistantMessage } from '../services/recommendationService';
 
@@ -13,6 +14,7 @@ interface Message {
 
 const Assistant: React.FC = () => {
     const { user } = useAuth();
+    const { showToast } = useToast();
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -54,21 +56,20 @@ const Assistant: React.FC = () => {
                 text: m.text
             }));
             const reply = await sendAssistantMessage(nextMessages);
-            const aiResponse: Message = {
-                id: (Date.now() + 1).toString(),
-                text: reply,
-                sender: 'ai',
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, aiResponse]);
+            const isUnavailable = /temporarily unavailable|unavailable/i.test(reply);
+            if (isUnavailable) {
+                showToast(reply);
+            } else {
+                const aiResponse: Message = {
+                    id: (Date.now() + 1).toString(),
+                    text: reply,
+                    sender: 'ai',
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, aiResponse]);
+            }
         } catch {
-            const aiResponse: Message = {
-                id: (Date.now() + 1).toString(),
-                text: "Sorry, I couldn't get a response. Please try again.",
-                sender: 'ai',
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, aiResponse]);
+            showToast("Sorry, I couldn't get a response. Please try again.");
         } finally {
             setIsTyping(false);
         }

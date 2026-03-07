@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Upload as UploadIcon, X, MapPin, Calendar, Clock, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { createPost } from '../services/postService';
 import { getCaptionSuggestion } from '../services/recommendationService';
 
@@ -28,6 +29,7 @@ const Upload: React.FC = () => {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
+  const { showToast } = useToast();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -76,9 +78,16 @@ const Upload: React.FC = () => {
         type: 'sunrise',
         image: selectedFile || undefined,
       });
-      if (suggestion) setCaption(suggestion);
+      const isUnavailable = /unavailable|rate limit|quota/i.test(suggestion);
+      if (isUnavailable) {
+        showToast(suggestion);
+      } else if (suggestion) {
+        setCaption(suggestion);
+      }
     } catch {
-      setError('Could not get suggestion. Try again.');
+      const msg = 'Could not get suggestion. Try again.';
+      setError(msg);
+      showToast(msg);
     } finally {
       setIsSuggestingCaption(false);
     }

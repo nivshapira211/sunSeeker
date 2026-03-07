@@ -10,6 +10,7 @@ import {
   toggleLike,
   getComments,
   addComment,
+  deleteComment,
 } from '../controllers/postController';
 import { protect } from '../middleware/authMiddleware';
 import upload from '../middleware/uploadMiddleware';
@@ -197,5 +198,6 @@ router.post('/:id/like', protect, toggleLike);
  */
 router.get('/:id/comments', getComments);
 router.post('/:id/comments', protect, addComment);
+router.delete('/:id/comments/:commentId', protect, deleteComment);
 
 export default router;

@@ -13,6 +13,7 @@ export interface Photo {
     };
     likes: number;
     comments: number;
+    liked?: boolean;
     type: 'sunrise' | 'sunset';
     exif: {
         camera: string;

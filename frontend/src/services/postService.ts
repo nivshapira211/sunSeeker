@@ -21,11 +21,12 @@ interface ApiPost {
   caption?: string;
   user?: { _id: string; username?: string; avatar?: string };
   likes?: unknown[];
+  commentCount?: number;
   type?: 'sunrise' | 'sunset';
   exif?: { camera?: string; lens?: string; aperture?: string; iso?: string; shutter?: string };
 }
 
-function mapApiPostToPhoto(post: ApiPost): Photo {
+function mapApiPostToPhoto(post: ApiPost, currentUserId?: string | null): Photo {
   const user = post.user;
   const rawImageUrl = post.imageUrl ?? '';
   const imageUrl =
@@ -36,6 +37,10 @@ function mapApiPostToPhoto(post: ApiPost): Photo {
         : getUploadsBaseUrl()
           ? getUploadsBaseUrl() + (rawImageUrl.startsWith('/') ? rawImageUrl : '/' + rawImageUrl)
           : rawImageUrl;
+  const likesArray = Array.isArray(post.likes) ? post.likes : [];
+  const liked = Boolean(
+    currentUserId && likesArray.some((id: unknown) => (id as { toString?: () => string })?.toString?.() === currentUserId)
+  );
   return {
     id: post._id,
     imageUrl,
@@ -49,8 +54,9 @@ function mapApiPostToPhoto(post: ApiPost): Photo {
       name: user?.username ?? 'Unknown',
       avatar: user?.avatar ?? '',
     },
-    likes: Array.isArray(post.likes) ? post.likes.length : 0,
-    comments: 0,
+    likes: likesArray.length,
+    comments: post.commentCount ?? 0,
+    liked,
     type: post.type === 'sunset' ? 'sunset' : 'sunrise',
     exif: {
       camera: post.exif?.camera ?? 'Unknown',
@@ -78,25 +84,25 @@ export interface FeedPage {
   hasMore: boolean;
 }
 
-export const getFeed = async (page: number): Promise<FeedPage> => {
+export const getFeed = async (page: number, currentUserId?: string | null): Promise<FeedPage> => {
   if (hasApiBaseUrl()) {
     const data = await request<{ posts: ApiPost[]; hasMore: boolean }>(
       `/posts?page=${page}&limit=${PAGE_SIZE}`
     );
     return {
-      posts: (data.posts ?? []).map(mapApiPostToPhoto),
+      posts: (data.posts ?? []).map((p) => mapApiPostToPhoto(p, currentUserId)),
       hasMore: data.hasMore ?? false,
     };
   }
   return { posts: [], hasMore: false };
 };
 
-export const getPostsByUserId = async (userId: string): Promise<Photo[]> => {
+export const getPostsByUserId = async (userId: string, currentUserId?: string | null): Promise<Photo[]> => {
   if (hasApiBaseUrl()) {
     const data = await request<{ posts: ApiPost[]; totalCount?: number; hasMore?: boolean }>(
       `/posts/user/${userId}?page=1&limit=${PAGE_SIZE}`
     );
-    return (data.posts ?? []).map(mapApiPostToPhoto);
+    return (data.posts ?? []).map((p) => mapApiPostToPhoto(p, currentUserId));
   }
   await new Promise((r) => setTimeout(r, 800));
   const store = getStore();
@@ -145,7 +151,7 @@ export const createPost = async (payload: CreatePostPayload): Promise<Photo> => 
         body: formData,
         token,
       });
-      return mapApiPostToPhoto(data);
+      return mapApiPostToPhoto(data, undefined);
     } catch (err) {
       const message = err instanceof ApiError ? err.message : 'Failed to create post. Please try again.';
       throw new Error(message);
@@ -224,6 +230,15 @@ export interface ToggleLikeResult {
 }
 
 export const toggleLike = async (postId: string): Promise<ToggleLikeResult> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to like posts.');
+    const data = await request<{ likes: number; liked: boolean }>(`/posts/${postId}/like`, {
+      method: 'POST',
+      token,
+    });
+    return { likes: data.likes, liked: data.liked };
+  }
   await new Promise((r) => setTimeout(r, 300));
   const store = getStore();
   const post = store.find((p) => p.id === postId);
@@ -258,7 +273,33 @@ function getCommentsStore(postId: string): Comment[] {
   return commentsByPost.get(postId)!;
 }
 
+/** Backend comment shape (GET /posts/:id/comments). */
+interface ApiComment {
+  _id: string;
+  postId: string;
+  userId: { _id: string; username?: string; avatar?: string };
+  text: string;
+  createdAt?: string;
+}
+
+function mapApiCommentToComment(c: ApiComment): Comment {
+  const userId = typeof c.userId === 'object' && c.userId !== null ? c.userId : { _id: '', username: '', avatar: '' };
+  return {
+    id: c._id,
+    postId: c.postId,
+    userId: userId._id,
+    userName: userId.username ?? 'Unknown',
+    userAvatar: userId.avatar,
+    text: c.text,
+    createdAt: c.createdAt ?? new Date().toISOString(),
+  };
+}
+
 export const getComments = async (postId: string): Promise<Comment[]> => {
+  if (hasApiBaseUrl()) {
+    const list = await request<ApiComment[]>(`/posts/${postId}/comments`);
+    return (list ?? []).map(mapApiCommentToComment);
+  }
   await new Promise((r) => setTimeout(r, 400));
   return [...getCommentsStore(postId)];
 };
@@ -270,6 +311,16 @@ export const addComment = async (
   userName: string,
   userAvatar?: string
 ): Promise<Comment> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to comment.');
+    const data = await request<ApiComment>(`/posts/${postId}/comments`, {
+      method: 'POST',
+      body: { text },
+      token,
+    });
+    return mapApiCommentToComment(data);
+  }
   await new Promise((r) => setTimeout(r, 400));
   const list = getCommentsStore(postId);
   const comment: Comment = {
@@ -285,4 +336,24 @@ export const addComment = async (
   const post = getStore().find((p) => p.id === postId);
   if (post) post.comments = list.length;
   return comment;
+};
+
+export const deleteComment = async (postId: string, commentId: string): Promise<void> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to delete comments.');
+    await request(`/posts/${postId}/comments/${commentId}`, {
+      method: 'DELETE',
+      token,
+    });
+    return;
+  }
+  await new Promise((r) => setTimeout(r, 300));
+  const list = getCommentsStore(postId);
+  const idx = list.findIndex((c) => c.id === commentId);
+  if (idx !== -1) {
+    list.splice(idx, 1);
+    const post = getStore().find((p) => p.id === postId);
+    if (post) post.comments = list.length;
+  }
 };

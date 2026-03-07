@@ -15,6 +15,7 @@ import {
   toggleLike as toggleLikeService,
   getComments,
   addComment as addCommentService,
+  deleteComment as deleteCommentService,
   type Comment,
 } from '../../services/postService';
 import { getAbsoluteUploadUrl } from '../../services/api';
@@ -40,19 +41,26 @@ const FeedCard: React.FC<FeedCardProps> = ({
   const [editCaption, setEditCaption] = useState(photo.caption ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(photo.liked ?? false);
   const [likeCount, setLikeCount] = useState(photo.likes);
+  const [commentCount, setCommentCount] = useState(photo.comments);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState('');
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
 
   const isOwner = Boolean(currentUserId && photo.user.id === currentUserId);
 
   useEffect(() => {
     setLikeCount(photo.likes);
-  }, [photo.likes]);
+    setLiked(photo.liked ?? false);
+  }, [photo.likes, photo.liked]);
+
+  useEffect(() => {
+    setCommentCount(photo.comments);
+  }, [photo.comments]);
 
   useEffect(() => {
     if (showCommentsModal) {
@@ -120,9 +128,21 @@ const FeedCard: React.FC<FeedCardProps> = ({
         user.avatar
       );
       setComments((prev) => [...prev, newComment]);
+      setCommentCount((c) => c + 1);
       setCommentText('');
     } finally {
       setSubmittingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    setDeletingCommentId(commentId);
+    try {
+      await deleteCommentService(photo.id, commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      setCommentCount((c) => Math.max(0, c - 1));
+    } finally {
+      setDeletingCommentId(null);
     }
   };
 
@@ -326,7 +346,7 @@ const FeedCard: React.FC<FeedCardProps> = ({
               aria-label="Comments"
             >
               <MessageCircle size={24} />
-              <span style={{ fontWeight: 600 }}>{photo.comments}</span>
+              <span style={{ fontWeight: 600 }}>{commentCount}</span>
             </button>
           </div>
         </div>
@@ -443,10 +463,34 @@ const FeedCard: React.FC<FeedCardProps> = ({
                     style={{
                       padding: 'var(--spacing-sm) 0',
                       borderBottom: '1px solid rgba(255,255,255,0.08)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      gap: 'var(--spacing-sm)',
                     }}
                   >
-                    <strong style={{ fontSize: '0.9rem' }}>{c.userName}</strong>
-                    <p style={{ margin: '4px 0 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>{c.text}</p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <strong style={{ fontSize: '0.9rem' }}>{c.userName}</strong>
+                      <p style={{ margin: '4px 0 0', fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>{c.text}</p>
+                    </div>
+                    {user && c.userId === user.id && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteComment(c.id)}
+                        disabled={deletingCommentId === c.id}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: 'var(--color-text-muted)',
+                          cursor: deletingCommentId === c.id ? 'wait' : 'pointer',
+                          padding: '4px',
+                          flexShrink: 0,
+                        }}
+                        aria-label="Delete comment"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </li>
                 ))}
                 {comments.length === 0 && !commentsLoading && (

@@ -29,7 +29,7 @@ const Profile: React.FC = () => {
                 setPostsLoading(true);
                 try {
                     // The service currently returns the entire mock feed, let's filter it client-side
-                    const allPosts = await getPostsByUserId(user.id);
+                    const allPosts = await getPostsByUserId(user.id, user.id);
                     setUserPosts(allPosts);
                 } catch {
                     // Error state could be shown in UI

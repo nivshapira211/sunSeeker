@@ -181,7 +181,7 @@ export const toggleLike = async (req: AuthRequest, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (post) {
-      const alreadyLiked = post.likes.includes(req.user._id);
+      const alreadyLiked = post.likes.some((id) => id.toString() === req.user._id.toString());
 
       if (alreadyLiked) {
         post.likes = post.likes.filter((id) => id.toString() !== req.user._id.toString());
@@ -216,9 +216,45 @@ export const addComment = async (req: AuthRequest, res: Response) => {
       text: req.body.text,
     });
 
+    const post = await Post.findById(req.params.id);
+    if (post) {
+      post.commentCount = (post.commentCount ?? 0) + 1;
+      await post.save();
+    }
+
     const populatedComment = await comment.populate('userId', 'username avatar');
     res.status(201).json(populatedComment);
   } catch (error) {
     res.status(400).json({ message: 'Error adding comment' });
+  }
+};
+
+export const deleteComment = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id: postId, commentId } = req.params;
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      res.status(404).json({ message: 'Comment not found' });
+      return;
+    }
+    if (comment.postId.toString() !== postId) {
+      res.status(400).json({ message: 'Comment does not belong to this post' });
+      return;
+    }
+    if (comment.userId.toString() !== req.user._id.toString()) {
+      res.status(401).json({ message: 'Not authorized to delete this comment' });
+      return;
+    }
+
+    await comment.deleteOne();
+    const post = await Post.findById(postId);
+    if (post) {
+      post.commentCount = Math.max(0, (post.commentCount ?? 0) - 1);
+      await post.save();
+    }
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting comment' });
   }
 };

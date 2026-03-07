@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   const loadPage = useCallback(async (pageNum: number, append: boolean) => {
     setError(null);
     try {
-      const { posts: nextPosts, hasMore: nextHasMore } = await getFeed(pageNum);
+      const { posts: nextPosts, hasMore: nextHasMore } = await getFeed(pageNum, user?.id);
       setPosts((prev) => (append ? [...prev, ...nextPosts] : nextPosts));
       setHasMore(nextHasMore);
     } catch (err) {
@@ -23,7 +23,7 @@ const Home: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     setLoading(true);

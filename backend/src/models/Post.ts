@@ -12,6 +12,7 @@ export interface IPost extends Document {
   caption?: string;
   user: mongoose.Types.ObjectId;
   likes: mongoose.Types.ObjectId[];
+  commentCount: number;
   type: 'sunrise' | 'sunset';
   exif: {
     camera: string;
@@ -34,6 +35,7 @@ const PostSchema: Schema = new Schema({
   caption: { type: String },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  commentCount: { type: Number, default: 0 },
   type: { type: String, enum: ['sunrise', 'sunset'], required: true },
   exif: {
     camera: { type: String, default: 'Unknown' },

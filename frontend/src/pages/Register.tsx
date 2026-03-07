@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, FileImage, Chrome, Facebook } from 'lucide-react';
+import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import * as authService from '../services/authService';
 import './Auth.css';
+
+const registerSchema = z
+  .object({
+    username: z.string().min(1, 'Username is required').max(50, 'Username too long'),
+    email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters long'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ['confirmPassword'],
+  });
 
 const Register: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -17,37 +30,24 @@ const Register: React.FC = () => {
     const navigate = useNavigate();
     const { register } = useAuth();
 
-    const validateForm = (): boolean => {
-        if (!username.trim() || !email.trim() || !password) {
-            setError('Please fill in all required fields.');
-            return false;
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError('Please enter a valid email address.');
-            return false;
-        }
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters long.');
-            return false;
-        }
-        if (password !== confirmPassword) {
-            setError("Passwords don't match.");
-            return false;
-        }
-        setError('');
-        return true;
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!validateForm()) {
+        setError('');
+        const result = registerSchema.safeParse({
+            username: username.trim(),
+            email: email.trim(),
+            password,
+            confirmPassword,
+        });
+        if (!result.success) {
+            const msg = result.error.issues[0]?.message ?? result.error.message ?? 'Please fix the form.';
+            setError(typeof msg === 'string' ? msg : String(msg));
             return;
         }
 
         setIsLoading(true);
         try {
-            await register(username, email, password, profilePic);
+            await register(result.data.username, result.data.email, result.data.password, profilePic);
             navigate('/');
         } catch (err) {
             setError((err as Error).message || 'Registration failed. Please try again.');

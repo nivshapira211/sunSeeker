@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import FeedCard from '../components/feed/FeedCard';
 import { getFeed } from '../services/postService';
 import type { Photo } from '../data/mockFeed';
@@ -11,6 +11,7 @@ const Home: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loadPage = useCallback(async (pageNum: number, append: boolean) => {
     setError(null);
@@ -30,13 +31,27 @@ const Home: React.FC = () => {
     loadPage(1, false);
   }, [loadPage]);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (loading || !hasMore) return;
     setLoading(true);
     const nextPage = page + 1;
     setPage(nextPage);
     loadPage(nextPage, true);
-  };
+  }, [loading, hasMore, page, loadPage]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting && hasMore && !loading) loadMore();
+      },
+      { rootMargin: '100px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadMore]);
 
   const handlePostDeleted = (postId: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== postId));
@@ -82,6 +97,14 @@ const Home: React.FC = () => {
         ))}
       </div>
 
+      {hasMore && posts.length > 0 && <div ref={sentinelRef} style={{ height: 1, minHeight: 1 }} aria-hidden="true" />}
+
+      {loading && posts.length > 0 && (
+        <div style={{ textAlign: 'center', padding: 'var(--spacing-lg)', color: 'var(--color-text-muted)' }}>
+          Loading more...
+        </div>
+      )}
+
       {loading && posts.length === 0 && (
         <div style={{ textAlign: 'center', padding: 'var(--spacing-2xl)', color: 'var(--color-text-muted)' }}>
           Loading...
@@ -91,20 +114,6 @@ const Home: React.FC = () => {
       {!loading && posts.length === 0 && !error && (
         <div style={{ textAlign: 'center', padding: 'var(--spacing-2xl)', color: 'var(--color-text-secondary)' }}>
           <p>No posts yet. Share a sunrise or sunset!</p>
-        </div>
-      )}
-
-      {hasMore && posts.length > 0 && (
-        <div style={{ textAlign: 'center', margin: 'var(--spacing-xl) 0' }}>
-          <button
-            type="button"
-            className="glass-button glass-button-hover"
-            onClick={loadMore}
-            disabled={loading}
-            style={{ padding: 'var(--spacing-md) var(--spacing-xl)' }}
-          >
-            {loading ? 'Loading...' : 'Load more'}
-          </button>
         </div>
       )}
 

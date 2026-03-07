@@ -1,7 +1,9 @@
 import express from 'express';
 import multer from 'multer';
+import { body } from 'express-validator';
 import { getRecommendation, getCaptionSuggestionHandler, getCaptionSuggestionFromImageHandler, postAssistantChat } from '../controllers/recommendationController';
 import { protect } from '../middleware/authMiddleware';
+import { validate } from '../middleware/validate';
 import rateLimit from 'express-rate-limit';
 
 const memoryUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -93,6 +95,23 @@ router.get('/', protect, limiter, getRecommendation);
 router.get('/caption', protect, captionLimiter, getCaptionSuggestionHandler);
 router.post('/caption', protect, captionLimiter, memoryUpload.single('image'), getCaptionSuggestionFromImageHandler);
 
-router.post('/chat', protect, chatLimiter, postAssistantChat);
+router.post(
+  '/chat',
+  protect,
+  chatLimiter,
+  [
+    body('messages')
+      .isArray()
+      .withMessage('messages must be an array')
+      .custom((val) => {
+        if (!Array.isArray(val) || val.length === 0) return Promise.reject(new Error('messages array is required'));
+        const last = val[val.length - 1];
+        if (!last || last.role !== 'user' || typeof last.text !== 'string') return Promise.reject(new Error('last message must have role "user" and text'));
+        return true;
+      }),
+  ],
+  validate,
+  postAssistantChat
+);
 
 export default router;

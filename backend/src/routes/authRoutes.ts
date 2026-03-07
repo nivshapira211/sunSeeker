@@ -1,8 +1,10 @@
 import express from 'express';
 import passport from 'passport';
 import dotenv from 'dotenv';
+import { body } from 'express-validator';
 import { registerUser, loginUser, refresh, googleCallback } from '../controllers/authController';
 import upload from '../middleware/uploadMiddleware';
+import { validate } from '../middleware/validate';
 
 dotenv.config();
 
@@ -43,7 +45,17 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or user already exists
  */
-router.post('/register', upload.single('avatar'), registerUser);
+router.post(
+  '/register',
+  upload.single('avatar'),
+  [
+    body('username').trim().notEmpty().withMessage('Username is required').isLength({ max: 50 }).withMessage('Username too long'),
+    body('email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Invalid email'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  ],
+  validate,
+  registerUser
+);
 
 /**
  * @swagger
@@ -68,7 +80,15 @@ router.post('/register', upload.single('avatar'), registerUser);
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', loginUser);
+router.post(
+  '/login',
+  [
+    body('username').trim().notEmpty().withMessage('Email or username is required'),
+    body('password').notEmpty().withMessage('Password is required'),
+  ],
+  validate,
+  loginUser
+);
 
 /**
  * @swagger
@@ -91,7 +111,7 @@ router.post('/login', loginUser);
  *       401:
  *         description: Invalid refresh token
  */
-router.post('/refresh', refresh);
+router.post('/refresh', body('refreshToken').notEmpty().withMessage('Refresh token is required'), validate, refresh);
 
 /**
  * @swagger

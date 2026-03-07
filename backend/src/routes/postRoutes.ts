@@ -1,4 +1,5 @@
 import express from 'express';
+import { body } from 'express-validator';
 import {
   getPosts,
   getPostsByUserId,
@@ -14,6 +15,7 @@ import {
 } from '../controllers/postController';
 import { protect } from '../middleware/authMiddleware';
 import upload from '../middleware/uploadMiddleware';
+import { validate } from '../middleware/validate';
 
 const router = express.Router();
 
@@ -90,7 +92,20 @@ router.get('/', getPosts);
  */
 router.get('/user/:userId', getPostsByUserId);
 
-router.post('/', protect, upload.single('image'), createPost);
+router.post(
+  '/',
+  protect,
+  upload.single('image'),
+  [
+    body('caption').trim().notEmpty().withMessage('Caption is required'),
+    body('location').optional().trim(),
+    body('time').optional().trim(),
+    body('date').optional().trim(),
+    body('type').optional().isIn(['sunrise', 'sunset']).withMessage('Type must be sunrise or sunset'),
+  ],
+  validate,
+  createPost
+);
 router.get('/:id', getPostById);
 
 /**
@@ -126,7 +141,20 @@ router.get('/:id', getPostById);
  *       404:
  *         description: Post not found
  */
-router.put('/:id', protect, upload.single('image'), updatePost);
+router.put(
+  '/:id',
+  protect,
+  upload.single('image'),
+  [
+    body('caption').optional().trim(),
+    body('location').optional().trim(),
+    body('time').optional().trim(),
+    body('date').optional().trim(),
+    body('type').optional().isIn(['sunrise', 'sunset']).withMessage('Type must be sunrise or sunset'),
+  ],
+  validate,
+  updatePost
+);
 router.delete('/:id', protect, deletePost);
 /**
  * @swagger
@@ -197,7 +225,13 @@ router.post('/:id/like', protect, toggleLike);
  *         description: Comment added
  */
 router.get('/:id/comments', getComments);
-router.post('/:id/comments', protect, addComment);
+router.post(
+  '/:id/comments',
+  protect,
+  body('text').trim().notEmpty().withMessage('Comment text is required'),
+  validate,
+  addComment
+);
 router.delete('/:id/comments/:commentId', protect, deleteComment);
 
 export default router;

@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Chrome } from 'lucide-react';
+import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
+
+const loginSchema = z.object({
+  emailOrUsername: z.string().min(1, 'Enter email or username'),
+  password: z.string().min(1, 'Enter password'),
+});
 
 const Login: React.FC = () => {
     const [emailOrUsername, setEmailOrUsername] = useState('');
@@ -16,14 +22,16 @@ const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        if (!emailOrUsername.trim() || !password) {
-            setError('Please enter your email or username and password.');
+        const result = loginSchema.safeParse({ emailOrUsername: emailOrUsername.trim(), password });
+        if (!result.success) {
+            const msg = result.error.issues[0]?.message ?? result.error.message ?? 'Please fix the form.';
+            setError(typeof msg === 'string' ? msg : String(msg));
             return;
         }
 
         setIsLoading(true);
         try {
-            await login(emailOrUsername.trim(), password);
+            await login(result.data.emailOrUsername, result.data.password);
             navigate('/');
         } catch (err) {
             setError((err as Error).message || 'Sign in failed. Please try again.');

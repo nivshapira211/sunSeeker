@@ -194,6 +194,7 @@ export const createPost = async (payload: CreatePostPayload): Promise<Photo> => 
 
 export interface UpdatePostPayload {
   caption?: string;
+  image?: File;
   imageUrl?: string;
   location?: string;
   date?: string;
@@ -205,15 +206,48 @@ export const updatePost = async (
   postId: string,
   payload: UpdatePostPayload
 ): Promise<Photo> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to edit posts.');
+    const formData = new FormData();
+    formData.append('caption', payload.caption ?? '');
+    if (payload.image) {
+      formData.append('image', payload.image);
+    }
+    try {
+      const data = await request<ApiPost>(`/posts/${postId}`, {
+        method: 'PUT',
+        body: formData,
+        token,
+      });
+      return mapApiPostToPhoto(data, undefined);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : 'Failed to update post. Please try again.';
+      throw new Error(message);
+    }
+  }
   await new Promise((r) => setTimeout(r, 500));
   const store = getStore();
   const idx = store.findIndex((p) => p.id === postId);
   if (idx === -1) throw new Error('Post not found');
-  store[idx] = { ...store[idx], ...payload };
+  const updated = { ...store[idx], ...payload };
+  if (payload.image) {
+    updated.imageUrl = URL.createObjectURL(payload.image);
+  }
+  store[idx] = updated;
   return store[idx];
 };
 
 export const deletePost = async (postId: string): Promise<void> => {
+  if (hasApiBaseUrl()) {
+    const token = getStoredToken();
+    if (!token) throw new Error('Please log in to delete posts.');
+    await request(`/posts/${postId}`, {
+      method: 'DELETE',
+      token,
+    });
+    return;
+  }
   await new Promise((r) => setTimeout(r, 400));
   const store = getStore();
   const idx = store.findIndex((p) => p.id === postId);

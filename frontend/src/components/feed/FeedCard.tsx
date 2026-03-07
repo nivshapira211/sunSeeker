@@ -39,6 +39,8 @@ const FeedCard: React.FC<FeedCardProps> = ({
   const { user } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editCaption, setEditCaption] = useState(photo.caption ?? '');
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [liked, setLiked] = useState(photo.liked ?? false);
@@ -74,8 +76,13 @@ const FeedCard: React.FC<FeedCardProps> = ({
   const handleSaveEdit = async () => {
     setIsSaving(true);
     try {
-      const updated = await updatePost(photo.id, { caption: editCaption });
+      const payload: { caption: string; image?: File } = { caption: editCaption };
+      if (editImageFile) payload.image = editImageFile;
+      const updated = await updatePost(photo.id, payload);
       onUpdated?.(updated);
+      if (editImagePreview) URL.revokeObjectURL(editImagePreview);
+      setEditImageFile(null);
+      setEditImagePreview(null);
       setIsEditOpen(false);
     } catch {
       // Error could be shown in modal
@@ -196,6 +203,8 @@ const FeedCard: React.FC<FeedCardProps> = ({
                   type="button"
                   onClick={() => {
                     setEditCaption(photo.caption ?? '');
+                    setEditImageFile(null);
+                    setEditImagePreview(null);
                     setIsEditOpen(true);
                   }}
                   className="glass-button-hover"
@@ -377,6 +386,50 @@ const FeedCard: React.FC<FeedCardProps> = ({
             }}
           >
             <h3 style={{ marginBottom: 'var(--spacing-lg)' }}>Edit post</h3>
+            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
+              <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)' }}>Photo</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
+                {(editImagePreview || photo.imageUrl) && (
+                  <img
+                    src={editImagePreview ?? photo.imageUrl}
+                    alt="Preview"
+                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
+                  />
+                )}
+                <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="edit-photo"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (editImagePreview) URL.revokeObjectURL(editImagePreview);
+                        setEditImageFile(file);
+                        setEditImagePreview(URL.createObjectURL(file));
+                      }
+                      e.target.value = '';
+                    }}
+                    style={{ fontSize: '0.875rem' }}
+                    aria-label="Change photo"
+                  />
+                  {editImageFile && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (editImagePreview) URL.revokeObjectURL(editImagePreview);
+                        setEditImageFile(null);
+                        setEditImagePreview(null);
+                      }}
+                      className="glass-button glass-button-hover"
+                      style={{ padding: '4px 8px', fontSize: '0.875rem' }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
             <label htmlFor="edit-caption" style={{ display: 'block', marginBottom: 'var(--spacing-sm)' }}>
               Caption
             </label>
@@ -399,7 +452,12 @@ const FeedCard: React.FC<FeedCardProps> = ({
                 type="button"
                 className="glass-button glass-button-hover"
                 style={{ flex: 1 }}
-                onClick={() => setIsEditOpen(false)}
+                onClick={() => {
+                  if (editImagePreview) URL.revokeObjectURL(editImagePreview);
+                  setEditImageFile(null);
+                  setEditImagePreview(null);
+                  setIsEditOpen(false);
+                }}
               >
                 Cancel
               </button>

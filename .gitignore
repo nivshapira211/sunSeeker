@@ -45,5 +45,7 @@ GEMINI.md
 server.key
 server.cert
 uploads/
+backend/.env
+frontend/.env
 !ssl/server.key
 !ssl/server.crt

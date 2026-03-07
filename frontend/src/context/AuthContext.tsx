@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
+import { setAuthRefreshHandler } from '../services/api';
 import * as authService from '../services/authService';
 
 interface User {
@@ -40,6 +41,8 @@ function clearSession(): void {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const setUserRef = useRef(setUser);
+    setUserRef.current = setUser;
 
     useEffect(() => {
         const token = localStorage.getItem(AUTH_TOKEN_KEY);
@@ -52,6 +55,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
         }
         setIsLoading(false);
+    }, []);
+
+    useEffect(() => {
+        setAuthRefreshHandler(async () => {
+            const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+            if (!refreshToken) {
+                clearSession();
+                setUserRef.current(null);
+                return null;
+            }
+            try {
+                const data = await authService.refreshToken(refreshToken);
+                localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+                localStorage.setItem(REFRESH_TOKEN_KEY, data.refreshToken);
+                return data.token;
+            } catch {
+                clearSession();
+                setUserRef.current(null);
+                return null;
+            }
+        });
+        return () => setAuthRefreshHandler(null);
     }, []);
 
     const login = async (emailOrUsername: string, password: string) => {

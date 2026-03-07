@@ -3,17 +3,23 @@ import app from '../app';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-let mongoServer: MongoMemoryServer;
+let mongoServer: MongoMemoryServer | null = null;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
+  mongoServer = await MongoMemoryServer.create({
+    instance: { launchTimeout: 60000 },
+  });
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
-});
+}, 65000);
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
 
 describe('Auth Endpoints', () => {

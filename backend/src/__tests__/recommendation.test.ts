@@ -10,11 +10,13 @@ jest.mock('../services/aiService', () => ({
   detectSunriseSunset: jest.fn(),
 }));
 
-let mongoServer: MongoMemoryServer;
+let mongoServer: MongoMemoryServer | null = null;
 let token: string;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
+  mongoServer = await MongoMemoryServer.create({
+    instance: { launchTimeout: 60000 },
+  });
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
 
@@ -26,11 +28,15 @@ beforeAll(async () => {
     .field('password', 'password123');
   
   token = res.body.token;
-});
+}, 65000);
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
 
 describe('Recommendation Endpoints', () => {

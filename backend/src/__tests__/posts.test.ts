@@ -5,12 +5,14 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import path from 'path';
 import fs from 'fs';
 
-let mongoServer: MongoMemoryServer;
+let mongoServer: MongoMemoryServer | null = null;
 let token: string;
 let userId: string;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
+  mongoServer = await MongoMemoryServer.create({
+    instance: { launchTimeout: 60000 },
+  });
   const uri = mongoServer.getUri();
   await mongoose.connect(uri);
 
@@ -22,11 +24,15 @@ beforeAll(async () => {
   
   token = res.body.token;
   userId = res.body.user.id;
-});
+}, 65000);
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+  if (mongoServer) {
+    await mongoServer.stop();
+  }
 });
 
 describe('Post Endpoints', () => {

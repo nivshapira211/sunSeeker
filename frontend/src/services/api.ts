@@ -6,8 +6,15 @@
 
 let baseUrl = '';
 
+/** Handler called on 401 to refresh the access token. Returns new token or null. */
+let authRefreshHandler: (() => Promise<string | null>) | null = null;
+
 export function setApiBaseUrl(url: string): void {
   baseUrl = url ?? '';
+}
+
+export function setAuthRefreshHandler(handler: (() => Promise<string | null>) | null): void {
+  authRefreshHandler = handler;
 }
 
 function getBaseUrl(): string {
@@ -52,13 +59,15 @@ export type RequestOptions = {
   body?: unknown;
   headers?: Record<string, string>;
   token?: string | null;
+  /** When true, do not attempt token refresh on 401 (e.g. for /auth/refresh). */
+  skipAuthRetry?: boolean;
 };
 
 export async function request<T>(
   path: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { method = 'GET', body, headers = {}, token } = options;
+  const { method = 'GET', body, headers = {}, token, skipAuthRetry = false } = options;
   const BASE_URL = getBaseUrl();
   const url = BASE_URL ? `${BASE_URL.replace(/\/$/, '')}${path}` : '';
 
@@ -76,18 +85,48 @@ export async function request<T>(
     return Promise.reject(new ApiError('No API base URL configured. Use mock services.'));
   }
 
-  try {
-    const response = await fetch(url, {
+  const doFetch = async (authToken: string | null): Promise<Response> => {
+    const h = { ...requestHeaders };
+    if (authToken) {
+      h['Authorization'] = `Bearer ${authToken}`;
+    }
+    return fetch(url, {
       method,
-      headers: requestHeaders,
+      headers: h,
       body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
     });
+  };
+
+  try {
+    let response = await doFetch(token ?? null);
 
     const contentType = response.headers.get('Content-Type');
     const isJson = contentType?.includes('application/json');
     const responseBody = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
+      if (
+        response.status === 401 &&
+        token &&
+        !skipAuthRetry &&
+        authRefreshHandler
+      ) {
+        const newToken = await authRefreshHandler();
+        if (newToken) {
+          response = await doFetch(newToken);
+          const retryContentType = response.headers.get('Content-Type');
+          const retryIsJson = retryContentType?.includes('application/json');
+          const retryBody = retryIsJson ? await response.json() : await response.text();
+          if (!response.ok) {
+            const message =
+              typeof retryBody === 'object' && retryBody !== null && 'message' in retryBody
+                ? String((retryBody as { message: string }).message)
+                : `Request failed with status ${response.status}`;
+            throw new ApiError(message, response.status, retryBody);
+          }
+          return retryBody as T;
+        }
+      }
       const message =
         typeof responseBody === 'object' && responseBody !== null && 'message' in responseBody
           ? String((responseBody as { message: string }).message)

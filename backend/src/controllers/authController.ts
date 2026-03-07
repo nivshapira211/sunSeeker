@@ -3,9 +3,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
+const ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN ?? '1h';
+
 export const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
-    expiresIn: '1h',
+    expiresIn: ACCESS_TOKEN_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   });
 };
 

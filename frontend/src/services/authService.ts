@@ -143,6 +143,7 @@ export const refreshToken = async (
     const data = await request<{ token: string; refreshToken: string }>('/auth/refresh', {
       method: 'POST',
       body: { refreshToken: currentRefreshToken },
+      skipAuthRetry: true,
     });
     return data;
   }

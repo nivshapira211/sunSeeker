@@ -29,9 +29,10 @@ describe('Auth Endpoints', () => {
       .field('username', 'testuser')
       .field('email', 'test@example.com')
       .field('password', 'password123');
-    
+
     expect(res.statusCode).toEqual(201);
     expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('refreshToken');
   });
 
   it('should login an existing user', async () => {
@@ -41,8 +42,56 @@ describe('Auth Endpoints', () => {
         username: 'testuser',
         password: 'password123',
       });
-    
+
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('refreshToken');
+  });
+
+  it('should refresh token with valid refreshToken', async () => {
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ username: 'testuser', password: 'password123' });
+    const refreshToken = loginRes.body.refreshToken;
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('token');
+    expect(res.body).toHaveProperty('refreshToken');
+  });
+
+  it('should return 401 when refresh has no refreshToken', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({});
+
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should return 401 when refresh token is invalid', async () => {
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'invalid-token' });
+
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should redirect to Google for GET /google', async () => {
+    const res = await request(app).get('/api/auth/google');
+
+    expect(res.statusCode).toEqual(302);
+    expect(res.headers.location).toMatch(/accounts\.google\.com/);
+  });
+});
+
+describe('Root', () => {
+  it('GET / should return API running message', async () => {
+    const res = await request(app).get('/');
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.text).toContain('API is running');
   });
 });

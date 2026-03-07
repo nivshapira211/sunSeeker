@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { getRecommendation, getCaptionSuggestionHandler, getCaptionSuggestionFromImageHandler } from '../controllers/recommendationController';
+import { getRecommendation, getCaptionSuggestionHandler, getCaptionSuggestionFromImageHandler, postAssistantChat } from '../controllers/recommendationController';
 import { protect } from '../middleware/authMiddleware';
 import rateLimit from 'express-rate-limit';
 
@@ -18,6 +18,12 @@ const captionLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10,
   message: 'Too many caption suggestions, please try again shortly',
+});
+
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  message: 'Too many messages, please try again shortly',
 });
 
 /**
@@ -86,5 +92,7 @@ router.get('/', protect, limiter, getRecommendation);
  */
 router.get('/caption', protect, captionLimiter, getCaptionSuggestionHandler);
 router.post('/caption', protect, captionLimiter, memoryUpload.single('image'), getCaptionSuggestionFromImageHandler);
+
+router.post('/chat', protect, chatLimiter, postAssistantChat);
 
 export default router;

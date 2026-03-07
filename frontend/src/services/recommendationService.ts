@@ -38,3 +38,22 @@ export const getCaptionSuggestion = async (params?: {
   }
   return data.suggestion ?? '';
 };
+
+/**
+ * Send conversation to assistant; returns the AI reply. Strictly for sunrise/sunset recommendations.
+ */
+export const sendAssistantMessage = async (
+  messages: Array<{ role: 'user' | 'assistant'; text: string }>
+): Promise<string> => {
+  if (!hasApiBaseUrl()) {
+    return "I can only help with sunrise and sunset recommendations. Ask me for a spot or best time to see the sun.";
+  }
+
+  const token = getStoredToken();
+  const data = await request<{ reply: string }>('/recommendations/chat', {
+    method: 'POST',
+    body: { messages },
+    token,
+  });
+  return data.reply ?? '';
+};

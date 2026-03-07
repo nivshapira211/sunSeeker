@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getRecommendations, getCaptionSuggestion, getCaptionSuggestionFromImage } from '../services/aiService';
+import { getRecommendations, getCaptionSuggestion, getCaptionSuggestionFromImage, getAssistantReply } from '../services/aiService';
 
 export const getRecommendation = async (req: Request, res: Response) => {
   const query = req.query.q as string;
@@ -42,5 +42,33 @@ export const getCaptionSuggestionFromImageHandler = async (req: Request, res: Re
   } catch (error) {
     console.error('Caption from image error:', error);
     res.status(500).json({ message: 'Error fetching caption suggestion' });
+  }
+};
+
+export const postAssistantChat = async (req: Request, res: Response) => {
+  const body = req.body as { messages?: Array<{ role: string; text: string }> };
+  const raw = body?.messages;
+
+  if (!Array.isArray(raw) || raw.length === 0) {
+    res.status(400).json({ message: 'messages array is required' });
+    return;
+  }
+  const last = raw[raw.length - 1];
+  if (!last || last.role !== 'user') {
+    res.status(400).json({ message: 'last message must have role "user"' });
+    return;
+  }
+
+  const messages = raw.map((m) => ({
+    role: (m.role === 'assistant' ? 'model' : 'user') as 'user' | 'model',
+    text: typeof m.text === 'string' ? m.text : '',
+  }));
+
+  try {
+    const reply = await getAssistantReply(messages);
+    res.json({ reply });
+  } catch (error) {
+    console.error('Assistant chat error:', error);
+    res.status(500).json({ message: 'Error getting assistant reply' });
   }
 };

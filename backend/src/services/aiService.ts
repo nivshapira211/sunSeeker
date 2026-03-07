@@ -124,3 +124,48 @@ export const getCaptionSuggestionFromImage = async (
   console.error("AI Caption (image): all models failed (quota/404)");
   return CAPTION_QUOTA_MSG;
 };
+
+const ASSISTANT_SYSTEM =
+  'You are the SunSeeker Assistant. You ONLY provide recommendations for sunrise and sunset viewing: best spots, best times (e.g. golden hour), seasonal or location-specific tips, and photography tips for sunrise/sunset. You do not answer questions on any other topic. If the user asks something unrelated to sunrise or sunset, reply in one short sentence that you can only help with sunrise and sunset recommendations and ask how you can help with that. Keep replies concise.';
+
+const MAX_CHAT_HISTORY = 20;
+
+/** Multi-turn assistant reply scoped strictly to sunrise/sunset recommendations. */
+export const getAssistantReply = async (
+  messages: Array<{ role: 'user' | 'model'; text: string }>
+): Promise<string> => {
+  if (!genAI) {
+    return "AI is not configured. I can only help with sunrise and sunset recommendations.";
+  }
+
+  const bounded = messages.slice(-MAX_CHAT_HISTORY);
+  const lines: string[] = [ASSISTANT_SYSTEM, '', 'Conversation:'];
+  for (const m of bounded) {
+    const label = m.role === 'user' ? 'User' : 'Assistant';
+    lines.push(`${label}: ${m.text.trim()}`);
+  }
+  lines.push('Assistant:');
+  const prompt = lines.join('\n');
+
+  const tryModel = async (modelId: string): Promise<string> => {
+    const model = genAI.getGenerativeModel({ model: modelId });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
+  };
+
+  for (const modelId of [GEMINI_MODEL, FALLBACK_MODEL]) {
+    try {
+      return await tryModel(modelId);
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const isQuotaOrNotFound = /429|404|quota|not found/i.test(errMsg);
+      if (!isQuotaOrNotFound) {
+        console.error("AI Assistant Error:", error);
+        return "AI is temporarily unavailable. Please try again in a moment.";
+      }
+    }
+  }
+  console.error("AI Assistant: all models failed (quota/404)");
+  return "AI is temporarily unavailable. Please try again in a moment.";
+};

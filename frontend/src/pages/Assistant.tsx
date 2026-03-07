@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, User, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getAbsoluteUploadUrl } from '../services/api';
+import { sendAssistantMessage } from '../services/recommendationService';
 
 interface Message {
     id: string;
@@ -16,7 +17,7 @@ const Assistant: React.FC = () => {
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
-            text: "Hello! I'm your SunSeeker Assistant. I can help you find the best spots for sunrise or sunset photography, or check the weather conditions for your upcoming trip. How can I help you today?",
+            text: "Hello! I'm your SunSeeker Assistant. I only help with sunrise and sunset recommendations—best spots, best times, and tips. Ask me for a place or time to catch the sun.",
             sender: 'ai',
             timestamp: new Date()
         }
@@ -32,13 +33,13 @@ const Assistant: React.FC = () => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = (e: React.FormEvent) => {
+    const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim()) return;
+        if (!input.trim() || isTyping) return;
 
         const userMessage: Message = {
             id: Date.now().toString(),
-            text: input,
+            text: input.trim(),
             sender: 'user',
             timestamp: new Date()
         };
@@ -47,17 +48,30 @@ const Assistant: React.FC = () => {
         setInput('');
         setIsTyping(true);
 
-        // Mock AI response
-        setTimeout(() => {
+        try {
+            const nextMessages = [...messages, userMessage].map((m) => ({
+                role: (m.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
+                text: m.text
+            }));
+            const reply = await sendAssistantMessage(nextMessages);
             const aiResponse: Message = {
                 id: (Date.now() + 1).toString(),
-                text: "That sounds like a great idea! I can definitely help with that. Since I'm currently in 'demo mode', I can't fetch real-time data yet, but imagine I just gave you the perfect location coordinates!",
+                text: reply,
                 sender: 'ai',
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, aiResponse]);
+        } catch {
+            const aiResponse: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "Sorry, I couldn't get a response. Please try again.",
+                sender: 'ai',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, aiResponse]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -68,7 +82,7 @@ const Assistant: React.FC = () => {
                     <h1 className="text-gradient" style={{ margin: 0, fontSize: '1.8rem' }}>AI Assistant</h1>
                 </div>
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
-                    Your personal guide to the perfect light.
+                    Sunrise and sunset spots and best times only.
                 </p>
             </div>
 
@@ -161,7 +175,7 @@ const Assistant: React.FC = () => {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Ask about sunrise times, locations, or weather..."
+                                placeholder="Ask about sunrise or sunset spots and best times..."
                                 style={{
                                     width: '100%',
                                     padding: '14px 50px 14px 20px',
@@ -175,7 +189,7 @@ const Assistant: React.FC = () => {
                             />
                             <button
                                 type="submit"
-                                disabled={!input.trim()}
+                                disabled={!input.trim() || isTyping}
                                 style={{
                                     position: 'absolute',
                                     right: '8px',

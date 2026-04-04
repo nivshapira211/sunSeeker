@@ -123,7 +123,7 @@ router.post('/refresh', body('refreshToken').notEmpty().withMessage('Refresh tok
  *       302:
  *         description: Redirect to Google
  */
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
 
 /**
  * @swagger
@@ -135,6 +135,6 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
  *       302:
  *         description: Redirect to frontend
  */
-router.get('/google/callback', passport.authenticate('google', { failureRedirect: process.env.CLIENT_URL ? `${process.env.CLIENT_URL}/login` : 'http://localhost:5173/login' }), googleCallback);
+router.get('/google/callback', passport.authenticate('google', { failureRedirect: process.env.CLIENT_URL ? `${process.env.CLIENT_URL}/login` : 'https://localhost:5173/login', session: false }), googleCallback);
 
 export default router;

@@ -49,3 +49,5 @@ backend/.env
 frontend/.env
 !ssl/server.key
 !ssl/server.crt
+backend/package-lock.json
+frontend/package-lock.json

@@ -29,6 +29,9 @@ services:
     container_name: sunseeker-frontend
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/ssl
     depends_on:
       - backend
     networks:

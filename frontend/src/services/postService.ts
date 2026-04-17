@@ -118,6 +118,7 @@ export interface CreatePostPayload {
   text: string;
   image: File | string;
   location?: string;
+  coordinates?: { lat: number; lng: number };
   date?: string;
   time?: string;
   type?: 'sunrise' | 'sunset';
@@ -137,7 +138,7 @@ export const createPost = async (payload: CreatePostPayload): Promise<Photo> => 
     formData.append('date', payload.date ?? new Date().toLocaleDateString());
     formData.append('time', payload.time ?? '00:00');
     formData.append('type', payload.type ?? 'sunrise');
-    formData.append('coordinates', JSON.stringify({ lat: 0, lng: 0 }));
+    formData.append('coordinates', JSON.stringify(payload.coordinates ?? { lat: 0, lng: 0 }));
     formData.append('exif', JSON.stringify({ camera: 'Unknown', lens: '', aperture: '', iso: '', shutter: '' }));
 
     if (typeof payload.image === 'string') {

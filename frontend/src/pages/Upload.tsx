@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Upload as UploadIcon, X, MapPin, Calendar, Clock, Sparkles } from 'lucide-react';
+import { Upload as UploadIcon, X, Calendar, Clock, Sparkles } from 'lucide-react';
+import LocationPicker, { type LocationPickerValue } from '../components/LocationPicker';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -21,6 +22,7 @@ const Upload: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
   const [location, setLocation] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number }>({ lat: 0, lng: 0 });
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [error, setError] = useState('');
@@ -114,6 +116,7 @@ const Upload: React.FC = () => {
         text: caption.trim(),
         image: selectedFile,
         location: location || 'Unknown',
+        coordinates,
         date: date || new Date().toLocaleDateString(),
         time: time || '00:00',
         type: 'sunrise',
@@ -373,26 +376,13 @@ const Upload: React.FC = () => {
               >
                 Location
               </label>
-              <div className="input-with-icon" style={{ position: 'relative' }}>
-                <MapPin
-                  size={18}
-                  style={{
-                    position: 'absolute',
-                    left: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: 'var(--color-text-muted)',
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="e.g. Haleakalā, Maui"
-                  className="glass-input"
-                  style={inputStyle}
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-              </div>
+              <LocationPicker
+                value={location ? { location, coordinates } : undefined}
+                onChange={(val: LocationPickerValue) => {
+                  setLocation(val.location);
+                  setCoordinates(val.coordinates);
+                }}
+              />
             </div>
 
             <button

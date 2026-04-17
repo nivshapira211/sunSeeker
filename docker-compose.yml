@@ -17,7 +17,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - ./backend/uploads:/app/uploads
+      - backend-uploads:/app/uploads
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -40,6 +40,9 @@ services:
       - sunseeker-network
 
 
+
+volumes:
+  backend-uploads:
 
 networks:
   sunseeker-network:

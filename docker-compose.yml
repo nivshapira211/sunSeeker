@@ -10,8 +10,6 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - CORS_ORIGIN=http://localhost
-      - CLIENT_URL=http://localhost
     # This automatically includes the rest of your local variables 
     # (like JWT_SECRET, GOOGLE_CLIENT_ID, etc.) into the container
     env_file:

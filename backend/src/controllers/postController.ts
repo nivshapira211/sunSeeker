@@ -26,6 +26,7 @@ export const getPosts = async (req: Request, res: Response) => {
       hasMore: skip + posts.length < totalCount,
     });
   } catch (error) {
+    console.error('Error fetching posts:', error);
     res.status(500).json({ message: 'Error fetching posts' });
   }
 };
@@ -141,7 +142,7 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
       post.time = req.body.time || post.time;
       post.date = req.body.date || post.date;
       post.type = req.body.type || post.type;
-      
+
       if (req.file) {
         post.imageUrl = `/uploads/${req.file.filename}`;
       }

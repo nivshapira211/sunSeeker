@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sunseeker-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    # This automatically includes the rest of your local variables 
+    # (like JWT_SECRET, GOOGLE_CLIENT_ID, etc.) into the container
+    env_file:
+      - ./backend/.env
+    volumes:
+      - backend-uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    networks:
+      - sunseeker-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sunseeker-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ssl:/ssl
+    depends_on:
+      - backend
+    networks:
+      - sunseeker-network
+
+
+
+volumes:
+  backend-uploads:
+
+networks:
+  sunseeker-network:
+    driver: bridge

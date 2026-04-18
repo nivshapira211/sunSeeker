@@ -9,9 +9,9 @@ dotenv.config();
 const rawKey = process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY;
 const OPENROUTER_API_KEY =
   rawKey &&
-  rawKey !== 'your_openrouter_api_key' &&
-  rawKey !== 'your_gemini_or_chatgpt_api_key' &&
-  !String(rawKey).trim().startsWith('AIza') // avoid using Google key with OpenRouter
+    rawKey !== 'your_openrouter_api_key' &&
+    rawKey !== 'your_gemini_or_chatgpt_api_key' &&
+    !String(rawKey).trim().startsWith('AIza') // avoid using Google key with OpenRouter
     ? String(rawKey).trim()
     : process.env.OPENROUTER_API_KEY?.trim() || '';
 
@@ -133,7 +133,7 @@ export const getCaptionSuggestion = async (context: {
 
   const locationPart = context.location?.trim() ? ` at ${context.location}` : '';
   const typePart = context.type === 'sunset' ? 'sunset' : 'sunrise';
-  const prompt = `Write one short, engaging Instagram-style caption for a ${typePart} photo${locationPart}. One sentence only, no hashtags. Reply with only the caption text.`;
+  const prompt = `Write one short, engaging caption for a ${typePart} photo${locationPart}. Include specific visual details like colors, scenery, and atmosphere (e.g. "golden light over calm ocean waves" rather than just "beautiful sunset"). One or two sentences, no hashtags. Reply with only the caption text.`;
 
   try {
     return await openRouterChat([{ role: 'user', content: prompt }]);
@@ -157,7 +157,7 @@ export const getCaptionSuggestionFromImage = async (
 
   const locationPart = context.location?.trim() ? ` at ${context.location}` : '';
   const typePart = context.type === 'sunset' ? 'sunset' : 'sunrise';
-  const prompt = `Look at this photo and write one short, engaging Instagram-style caption for it. Context: ${typePart} photo${locationPart}. Describe what you see and make it evocative. One sentence only, no hashtags. Reply with only the caption text.`;
+  const prompt = `Look at this photo and write one short, engaging caption for it. Context: ${typePart} photo${locationPart}. Describe specific visual details you see — colors, clouds, landscape, water, silhouettes, light patterns. Be descriptive yet poetic (e.g. "soft pink clouds drifting over a tranquil shoreline at dawn"). One or two sentences, no hashtags. Reply with only the caption text.`;
 
   const mime = mimeType || 'image/jpeg';
   const base64 = imageBuffer.toString('base64');

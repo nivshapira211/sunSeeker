@@ -2,6 +2,12 @@ import { Request, Response } from 'express';
 import Post from '../models/Post';
 import Comment from '../models/Comment';
 import { detectSunriseSunset } from '../services/aiService';
+import {
+  generateEmbedding,
+  composeEmbeddingText,
+  cosineSimilarity,
+  isEmbeddingConfigured,
+} from '../services/embeddingService';
 
 interface AuthRequest extends Request {
   user?: any;
@@ -59,16 +65,71 @@ export const searchPosts = async (req: Request, res: Response) => {
   }
 };
 
+export const semanticSearch = async (req: Request, res: Response) => {
+  const query = req.query.q as string;
+  const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
+
+  if (!query || !query.trim()) {
+    res.status(400).json({ message: 'Search query is required' });
+    return;
+  }
+
+  if (!isEmbeddingConfigured()) {
+    res.status(503).json({ message: 'Semantic search is not available (AI not configured)' });
+    return;
+  }
+
+  try {
+    // 1. Embed the query
+    const queryEmbedding = await generateEmbedding(query.trim());
+
+    // 2. Fetch all posts that have embeddings
+    const posts = await Post.find({ embedding: { $exists: true, $ne: [] } })
+      .populate('user', 'username avatar')
+      .lean();
+
+    // 3. Compute cosine similarity, filter by threshold, and rank
+    const SIMILARITY_THRESHOLD = 0.2;
+    const scored = posts
+      .map((post) => ({
+        post,
+        score: cosineSimilarity(queryEmbedding, (post as any).embedding as number[]),
+      }))
+      .filter(({ score }) => score >= SIMILARITY_THRESHOLD)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    // 4. Return results (strip embeddings from response)
+    const results = scored.map(({ post, score }) => {
+      const { embedding, ...postWithoutEmbedding } = post as any;
+      return { ...postWithoutEmbedding, similarityScore: Math.round(score * 100) / 100 };
+    });
+
+    res.json({ posts: results, totalCount: results.length });
+  } catch (error) {
+    console.error('Semantic search error:', error);
+    res.status(500).json({ message: 'Error performing semantic search' });
+  }
+};
+
+
 export const createPost = async (req: AuthRequest, res: Response) => {
   const { caption, location, time, date, type, coordinates, exif } = req.body;
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
   const imagePathForAi = req.file ? req.file.path : undefined;
 
   try {
+    // Validate with AI only if type wasn't already set (i.e. not pre-validated by detect-type)
     let detectedType = type;
     if (!detectedType && imagePathForAi) {
       const aiResult = await detectSunriseSunset(imagePathForAi);
-      detectedType = aiResult.type === 'unknown' ? 'sunrise' : aiResult.type;
+      if (aiResult.type === 'unknown') {
+        res.status(400).json({
+          message: 'Only sunrise or sunset photos are allowed. Please upload a valid image.',
+        });
+        return;
+      }
+      detectedType = aiResult.type;
     }
 
     const post = await Post.create({
@@ -77,11 +138,19 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       location,
       time,
       date,
-      type: detectedType || 'sunrise', // Default to sunrise if not provided and no image
+      type: detectedType || 'sunrise',
       coordinates: coordinates ? JSON.parse(coordinates) : { lat: 0, lng: 0 },
       exif: exif ? JSON.parse(exif) : { camera: 'Unknown', lens: '', aperture: '', iso: '', shutter: '' },
       user: req.user._id,
     });
+
+    // Generate embedding asynchronously (don't block the response)
+    if (isEmbeddingConfigured()) {
+      const text = composeEmbeddingText({ caption, location, type: detectedType || 'sunrise' });
+      generateEmbedding(text)
+        .then((embedding) => Post.findByIdAndUpdate(post._id, { embedding }))
+        .catch((err) => console.error('Embedding generation failed:', err.message));
+    }
 
     const populatedPost = await post.populate('user', 'username avatar');
     res.status(201).json(populatedPost);

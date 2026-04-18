@@ -21,6 +21,7 @@ export interface IPost extends Document {
     iso: string;
     shutter: string;
   };
+  embedding?: number[];
 }
 
 const PostSchema: Schema = new Schema({
@@ -44,6 +45,7 @@ const PostSchema: Schema = new Schema({
     iso: { type: String, default: '' },
     shutter: { type: String, default: '' },
   },
+  embedding: { type: [Number], default: undefined },
 }, { timestamps: true });
 
 PostSchema.index({ caption: 'text', location: 'text' });

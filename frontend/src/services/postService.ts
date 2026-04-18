@@ -97,6 +97,14 @@ export const getFeed = async (page: number, currentUserId?: string | null): Prom
   return { posts: [], hasMore: false };
 };
 
+export const semanticSearch = async (query: string, currentUserId?: string | null): Promise<Photo[]> => {
+  if (!hasApiBaseUrl()) return [];
+  const data = await request<{ posts: ApiPost[]; totalCount: number }>(
+    `/posts/semantic-search?q=${encodeURIComponent(query)}&limit=20`
+  );
+  return (data.posts ?? []).map((p) => mapApiPostToPhoto(p, currentUserId));
+};
+
 export const getPostsByUserId = async (userId: string, currentUserId?: string | null): Promise<Photo[]> => {
   if (hasApiBaseUrl()) {
     const data = await request<{ posts: ApiPost[]; totalCount?: number; hasMore?: boolean }>(
@@ -118,6 +126,7 @@ export interface CreatePostPayload {
   text: string;
   image: File | string;
   location?: string;
+  coordinates?: { lat: number; lng: number };
   date?: string;
   time?: string;
   type?: 'sunrise' | 'sunset';
@@ -137,7 +146,7 @@ export const createPost = async (payload: CreatePostPayload): Promise<Photo> => 
     formData.append('date', payload.date ?? new Date().toLocaleDateString());
     formData.append('time', payload.time ?? '00:00');
     formData.append('type', payload.type ?? 'sunrise');
-    formData.append('coordinates', JSON.stringify({ lat: 0, lng: 0 }));
+    formData.append('coordinates', JSON.stringify(payload.coordinates ?? { lat: 0, lng: 0 }));
     formData.append('exif', JSON.stringify({ camera: 'Unknown', lens: '', aperture: '', iso: '', shutter: '' }));
 
     if (typeof payload.image === 'string') {

@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Upload as UploadIcon, X, Calendar, Clock, Sparkles } from 'lucide-react';
+import { Upload as UploadIcon, X, Calendar, Clock, Sparkles, Sun, Sunset } from 'lucide-react';
 import LocationPicker, { type LocationPickerValue } from '../components/LocationPicker';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { createPost } from '../services/postService';
 import { getCaptionSuggestion } from '../services/recommendationService';
+import { request } from '../services/api';
 
 const inputStyle = {
   width: '100%' as const,
@@ -28,6 +29,8 @@ const Upload: React.FC = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuggestingCaption, setIsSuggestingCaption] = useState(false);
+  const [postType, setPostType] = useState<'sunrise' | 'sunset'>('sunrise');
+  const [isDetectingType, setIsDetectingType] = useState(false);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
@@ -63,6 +66,33 @@ const Upload: React.FC = () => {
     setSelectedFile(file);
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
+
+    // Auto-detect sunrise/sunset type via AI
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setIsDetectingType(true);
+      setError('');
+      const formData = new FormData();
+      formData.append('image', file);
+      request<{ type: 'sunrise' | 'sunset' | 'unknown' }>('/posts/detect-type', {
+        method: 'POST',
+        body: formData,
+        token,
+      })
+        .then((data) => {
+          if (data.type === 'sunrise' || data.type === 'sunset') {
+            setPostType(data.type);
+          } else {
+            // Reject non-sunrise/sunset images immediately
+            setError('Only sunrise or sunset photos are allowed. Please upload a valid image.');
+            setSelectedFile(null);
+            if (url) URL.revokeObjectURL(url);
+            setPreviewUrl(null);
+          }
+        })
+        .catch(() => { })
+        .finally(() => setIsDetectingType(false));
+    }
   };
 
   const removeFile = () => {
@@ -119,7 +149,7 @@ const Upload: React.FC = () => {
         coordinates,
         date: date || new Date().toLocaleDateString(),
         time: time || '00:00',
-        type: 'sunrise',
+        type: postType,
         userId: user.id,
         userName: user.name,
         userAvatar: user.avatar ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`,
@@ -253,6 +283,67 @@ const Upload: React.FC = () => {
               >
                 <X size={18} />
               </button>
+            </div>
+          )}
+          {/* Type Toggle */}
+          {previewUrl && (
+            <div style={{ marginTop: 'var(--spacing-lg)' }}>
+              <label
+                style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: '0.9rem',
+                }}
+              >
+                Type {isDetectingType && <span style={{ color: 'var(--color-primary)', fontSize: '0.8rem' }}>(AI detecting...)</span>}
+              </label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setPostType('sunrise')}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: postType === 'sunrise' ? '2px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.1)',
+                    background: postType === 'sunrise' ? 'rgba(255,126,95,0.15)' : 'rgba(255,255,255,0.05)',
+                    color: postType === 'sunrise' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    fontWeight: postType === 'sunrise' ? 600 : 400,
+                    transition: 'var(--transition-base)',
+                  }}
+                >
+                  <Sun size={20} />
+                  Sunrise
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPostType('sunset')}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: postType === 'sunset' ? '2px solid #f97316' : '1px solid rgba(255,255,255,0.1)',
+                    background: postType === 'sunset' ? 'rgba(249,115,22,0.15)' : 'rgba(255,255,255,0.05)',
+                    color: postType === 'sunset' ? '#f97316' : 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    fontWeight: postType === 'sunset' ? 600 : 400,
+                    transition: 'var(--transition-base)',
+                  }}
+                >
+                  <Sunset size={20} />
+                  Sunset
+                </button>
+              </div>
             </div>
           )}
 

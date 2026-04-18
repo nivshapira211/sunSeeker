@@ -97,6 +97,14 @@ export const getFeed = async (page: number, currentUserId?: string | null): Prom
   return { posts: [], hasMore: false };
 };
 
+export const semanticSearch = async (query: string, currentUserId?: string | null): Promise<Photo[]> => {
+  if (!hasApiBaseUrl()) return [];
+  const data = await request<{ posts: ApiPost[]; totalCount: number }>(
+    `/posts/semantic-search?q=${encodeURIComponent(query)}&limit=20`
+  );
+  return (data.posts ?? []).map((p) => mapApiPostToPhoto(p, currentUserId));
+};
+
 export const getPostsByUserId = async (userId: string, currentUserId?: string | null): Promise<Photo[]> => {
   if (hasApiBaseUrl()) {
     const data = await request<{ posts: ApiPost[]; totalCount?: number; hasMore?: boolean }>(

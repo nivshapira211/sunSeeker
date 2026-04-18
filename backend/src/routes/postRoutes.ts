@@ -4,6 +4,7 @@ import {
   getPosts,
   getPostsByUserId,
   searchPosts,
+  semanticSearch,
   createPost,
   getPostById,
   updatePost,
@@ -44,6 +45,30 @@ const router = express.Router();
  *         description: List of posts matching the search query
  */
 router.get('/search', searchPosts);
+
+/**
+ * @swagger
+ * /posts/semantic-search:
+ *   get:
+ *     summary: Semantic search posts using AI embeddings
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Natural language search query
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Max results (default 10, max 50)
+ *     responses:
+ *       200:
+ *         description: Posts ranked by semantic similarity
+ */
+router.get('/semantic-search', semanticSearch);
 
 /**
  * @swagger

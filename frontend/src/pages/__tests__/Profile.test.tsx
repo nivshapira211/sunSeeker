@@ -7,11 +7,11 @@ import * as postService from '../../services/postService';
 import * as authService from '../../services/authService';
 import { mockFeedData, type Photo } from '../../data/mockFeed';
 
-jest.mock('../../services/postService');
-jest.mock('../../services/authService');
+vi.mock('../../services/postService');
+vi.mock('../../services/authService');
 
-const mockGetPostsByUserId = postService.getPostsByUserId as jest.Mock;
-const mockUpdateProfile = authService.updateProfile as jest.Mock;
+const mockGetPostsByUserId = postService.getPostsByUserId as any;
+const mockUpdateProfile = authService.updateProfile as any;
 
 const mockUser = {
   id: 'u1',
@@ -32,7 +32,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe('Profile Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
     sessionStorage.clear();
     mockUpdateProfile.mockResolvedValue({ id: mockUser.id, name: mockUser.name, avatar: mockUser.avatar });
@@ -41,7 +41,7 @@ describe('Profile Component', () => {
 
   it('renders user information correctly when logged in', async () => {
     localStorage.setItem('authToken', 'token');
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    localStorage.setItem('sunseeker_user', JSON.stringify(mockUser));
 
     renderWithProviders(<Profile />);
 
@@ -54,12 +54,12 @@ describe('Profile Component', () => {
 
   it('fetches and displays user posts', async () => {
     localStorage.setItem('authToken', 'token');
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    localStorage.setItem('sunseeker_user', JSON.stringify(mockUser));
 
     renderWithProviders(<Profile />);
 
     await waitFor(() => {
-      expect(mockGetPostsByUserId).toHaveBeenCalledWith(mockUser.id);
+      expect(mockGetPostsByUserId).toHaveBeenCalledWith(mockUser.id, mockUser.id);
     });
 
     const userPosts = mockFeedData.filter((p: Photo) => p.user.id === mockUser.id);
@@ -70,7 +70,7 @@ describe('Profile Component', () => {
 
   it('sends PATCH with updated name and avatar when Save is clicked', async () => {
     localStorage.setItem('authToken', 'token');
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    localStorage.setItem('sunseeker_user', JSON.stringify(mockUser));
     mockUpdateProfile.mockResolvedValue({
       id: mockUser.id,
       name: 'Updated User',
@@ -105,7 +105,7 @@ describe('Profile Component', () => {
 
   it('shows a message if the user has no posts', async () => {
     localStorage.setItem('authToken', 'token');
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    localStorage.setItem('sunseeker_user', JSON.stringify(mockUser));
     mockGetPostsByUserId.mockResolvedValue([]);
 
     renderWithProviders(<Profile />);

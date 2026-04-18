@@ -112,10 +112,10 @@ export const register = async (
  * Social login placeholder. When backend exists, replace with OAuth flow.
  */
 export const socialLogin = async (
-  provider: 'google' | 'facebook'
+  provider: 'google'
 ): Promise<AuthResponse> => {
   await new Promise((resolve) => setTimeout(resolve, 800));
-  
+
   if (provider === 'google') {
     const mockUser: ApiUser = {
       id: 'google-1',
@@ -129,7 +129,7 @@ export const socialLogin = async (
       refreshToken: 'mock_google_refresh_token',
     };
   }
-  
+
   throw new Error('Social login for ' + provider + ' is not supported on this platform.');
 };
 

@@ -17,7 +17,10 @@ import {
 import { protect } from '../middleware/authMiddleware';
 import upload from '../middleware/uploadMiddleware';
 import { validate } from '../middleware/validate';
+import { detectSunriseSunset } from '../services/aiService';
+import multer from 'multer';
 
+const memoryUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 const router = express.Router();
 
 /**
@@ -45,6 +48,45 @@ const router = express.Router();
  *         description: List of posts matching the search query
  */
 router.get('/search', searchPosts);
+
+/**
+ * @swagger
+ * /posts/detect-type:
+ *   post:
+ *     summary: Detect whether an image is a sunrise or sunset
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Detected type
+ */
+router.post('/detect-type', protect, memoryUpload.single('image'), async (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ type: 'unknown', message: 'No image provided' });
+    return;
+  }
+  try {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const tmpPath = path.default.join('/tmp', `detect-${Date.now()}-${req.file.originalname}`);
+    await fs.default.writeFile(tmpPath, req.file.buffer);
+    const result = await detectSunriseSunset(tmpPath);
+    await fs.default.unlink(tmpPath).catch(() => { });
+    res.json({ type: result.type });
+  } catch {
+    res.status(500).json({ type: 'unknown', message: 'Detection failed' });
+  }
+});
 
 /**
  * @swagger

@@ -119,10 +119,17 @@ export const createPost = async (req: AuthRequest, res: Response) => {
   const imagePathForAi = req.file ? req.file.path : undefined;
 
   try {
+    // Validate with AI only if type wasn't already set (i.e. not pre-validated by detect-type)
     let detectedType = type;
     if (!detectedType && imagePathForAi) {
       const aiResult = await detectSunriseSunset(imagePathForAi);
-      detectedType = aiResult.type === 'unknown' ? 'sunrise' : aiResult.type;
+      if (aiResult.type === 'unknown') {
+        res.status(400).json({
+          message: 'Only sunrise or sunset photos are allowed. Please upload a valid image.',
+        });
+        return;
+      }
+      detectedType = aiResult.type;
     }
 
     const post = await Post.create({

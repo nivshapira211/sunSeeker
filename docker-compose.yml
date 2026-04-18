@@ -16,6 +16,7 @@ services:
       - ./backend/.env
     volumes:
       - backend-uploads:/app/uploads
+      - ./ssl:/ssl
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

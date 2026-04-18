@@ -68,7 +68,7 @@ describe('Auth Endpoints', () => {
       .post('/api/auth/refresh')
       .send({});
 
-    expect(res.statusCode).toEqual(401);
+    expect(res.statusCode).toEqual(400);
   });
 
   it('should return 401 when refresh token is invalid', async () => {

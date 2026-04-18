@@ -5,17 +5,17 @@ import { useAuth } from '../../../context/AuthContext';
 import * as postService from '../../../services/postService';
 import { mockFeedData } from '../../../data/mockFeed';
 
-jest.mock('../../../context/AuthContext');
-jest.mock('../../../services/postService');
+vi.mock('../../../context/AuthContext');
+vi.mock('../../../services/postService');
 
-const mockUseAuth = useAuth as jest.Mock;
-const mockGetComments = postService.getComments as jest.Mock;
+const mockUseAuth = useAuth as any;
+const mockGetComments = postService.getComments as any;
 
 const photo = mockFeedData[0];
 
 describe('FeedCard', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseAuth.mockReturnValue({ user: { id: 'u1', name: 'Test', avatar: '' } });
     mockGetComments.mockResolvedValue([]);
   });

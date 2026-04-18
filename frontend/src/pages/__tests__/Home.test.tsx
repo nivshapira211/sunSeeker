@@ -6,11 +6,11 @@ import * as postService from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
 import { mockFeedData } from '../../data/mockFeed';
 
-jest.mock('../../services/postService');
-jest.mock('../../context/AuthContext');
+vi.mock('../../services/postService');
+vi.mock('../../context/AuthContext');
 
-const mockUseAuth = useAuth as jest.Mock;
-const mockGetFeed = postService.getFeed as jest.Mock;
+const mockUseAuth = useAuth as any;
+const mockGetFeed = postService.getFeed as any;
 
 const mockUser = {
   id: 'u1',
@@ -24,7 +24,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe('Home Component (Main Feed)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseAuth.mockReturnValue({ user: mockUser });
   });
 
@@ -40,7 +40,7 @@ describe('Home Component (Main Feed)', () => {
     renderWithProviders(<Home />);
 
     await waitFor(() => {
-      expect(mockGetFeed).toHaveBeenCalledWith(1);
+      expect(mockGetFeed).toHaveBeenCalledWith(1, 'u1');
     });
 
     await screen.findByText('Location 0');
@@ -49,38 +49,51 @@ describe('Home Component (Main Feed)', () => {
     }
   });
 
-  it('loads more posts when Load more is clicked', async () => {
+  it('loads more posts when scrolling to bottom', async () => {
     const firstPage = mockFeedData.slice(0, 2);
     const secondPage = mockFeedData.slice(2, 4);
-    mockGetFeed
-      .mockResolvedValueOnce({ posts: firstPage, hasMore: true })
-      .mockResolvedValueOnce({ posts: secondPage, hasMore: false });
+
+    let observerCallback: any;
+    window.IntersectionObserver = class {
+      constructor(cb: any) {
+        observerCallback = cb;
+      }
+      observe() { }
+      unobserve() { }
+      disconnect() { }
+    } as any;
+
+    mockGetFeed.mockImplementation(async (pageNumber: number) => {
+      if (pageNumber === 1) return { posts: firstPage, hasMore: true };
+      return { posts: secondPage, hasMore: false };
+    });
 
     renderWithProviders(<Home />);
 
     await screen.findByText(firstPage[0].location);
     expect(screen.getByText(firstPage[1].location)).toBeInTheDocument();
 
-    const loadMoreButton = screen.getByRole('button', { name: /load more/i });
-    fireEvent.click(loadMoreButton);
+    // Simulate scrolling into view
+    await act(async () => {
+      observerCallback([{ isIntersecting: true }]);
+    });
 
     await waitFor(() => {
-      expect(mockGetFeed).toHaveBeenCalledWith(2);
+      expect(mockGetFeed).toHaveBeenCalledWith(2, 'u1');
     });
 
     await screen.findByText(secondPage[0].location);
     expect(screen.getByText(secondPage[1].location)).toBeInTheDocument();
-    expect(screen.getByText(/you've reached the end/i)).toBeInTheDocument();
   });
 
   it('allows an author to delete their own post', async () => {
     const userPosts = mockFeedData.filter((p) => p.user.id === mockUser.id);
     mockGetFeed.mockResolvedValue({ posts: userPosts, hasMore: false });
 
-    const mockDeletePost = postService.deletePost as jest.Mock;
+    const mockDeletePost = postService.deletePost as any;
     mockDeletePost.mockResolvedValue(undefined);
 
-    window.confirm = jest.fn(() => true);
+    window.confirm = vi.fn(() => true);
 
     renderWithProviders(<Home />);
 

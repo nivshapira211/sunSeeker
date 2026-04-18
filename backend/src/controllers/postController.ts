@@ -149,7 +149,11 @@ export const createPost = async (req: AuthRequest, res: Response) => {
       const text = composeEmbeddingText({ caption, location, type: detectedType || 'sunrise' });
       generateEmbedding(text)
         .then((embedding) => Post.findByIdAndUpdate(post._id, { embedding }))
-        .catch((err) => console.error('Embedding generation failed:', err.message));
+        .catch((err) => {
+          if (process.env.NODE_ENV !== 'test') {
+            console.error('Embedding generation failed:', err.message);
+          }
+        });
     }
 
     const populatedPost = await post.populate('user', 'username avatar');

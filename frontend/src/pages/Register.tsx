@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Mail, Lock, FileImage, Chrome, Facebook } from 'lucide-react';
+import { User, Mail, Lock, FileImage, Chrome } from 'lucide-react';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import * as authService from '../services/authService';
 import './Auth.css';
 
 const registerSchema = z
-  .object({
-    username: z.string().min(1, 'Username is required').max(50, 'Username too long'),
-    email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters long'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
-    path: ['confirmPassword'],
-  });
+    .object({
+        username: z.string().min(1, 'Username is required').max(50, 'Username too long'),
+        email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+        password: z.string().min(6, 'Password must be at least 6 characters long'),
+        confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords don't match.",
+        path: ['confirmPassword'],
+    });
 
 const Register: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -26,7 +26,7 @@ const Register: React.FC = () => {
     const [profilePic, setProfilePic] = useState<File | null>(null);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    
+
     const navigate = useNavigate();
     const { register } = useAuth();
 
@@ -90,7 +90,7 @@ const Register: React.FC = () => {
                             className="auth-input"
                         />
                     </div>
-                    
+
                     <div className="input-group">
                         <Lock size={18} className="input-icon" />
                         <input
@@ -156,21 +156,6 @@ const Register: React.FC = () => {
                     >
                         <Chrome size={20} />
                         <span>Google</span>
-                    </button>
-                    <button
-                        type="button"
-                        className="social-button"
-                        onClick={async () => {
-                            setError('');
-                            try {
-                                await authService.socialLogin('facebook');
-                            } catch (err) {
-                                setError((err as Error).message || 'Social login failed.');
-                            }
-                        }}
-                    >
-                        <Facebook size={20} />
-                        <span>Facebook</span>
                     </button>
                 </div>
 

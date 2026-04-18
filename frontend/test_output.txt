@@ -1,0 +1,1286 @@
+
+> sunseeker@0.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.4 [39m[90m/Users/niv/Desktop/code/sunSeeker/frontend[39m
+
+ [31m❯[39m src/pages/__tests__/Login.test.tsx [2m([22m[2m3 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 5[2mms[22m[39m
+[31m     [31m×[31m renders Google login correctly[39m[32m 2[2mms[22m[39m
+[31m     [31m×[31m successfully logs in via Google and stores the token[39m[32m 0[2mms[22m[39m
+[31m     [31m×[31m shows an error message when Google login fails[39m[32m 0[2mms[22m[39m
+[90mstderr[2m | src/pages/__tests__/Home.test.tsx[2m > [22m[2mHome Component (Main Feed)[2m > [22m[2mrenders 10 posts from a mocked API response
+[22m[39mAn error occurred in the <Home> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+
+ [32m✓[39m src/components/feed/__tests__/FeedCard.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 117[2mms[22m[39m
+[90mstderr[2m | src/pages/__tests__/Home.test.tsx[2m > [22m[2mHome Component (Main Feed)[2m > [22m[2mloads more posts when Load more is clicked
+[22m[39mAn error occurred in the <Home> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+
+
+ [31m❯[39m src/pages/__tests__/Register.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1088[2mms[22m[39m
+     [32m✓[39m renders register form with all fields[32m 69[2mms[22m[39m
+[31m     [31m×[31m validates required fields and email format[39m[33m 1018[2mms[22m[39m
+ [31m❯[39m src/pages/__tests__/Home.test.tsx [2m([22m[2m3 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 2086[2mms[22m[39m
+[31m     [31m×[31m renders 10 posts from a mocked API response[39m[33m 1051[2mms[22m[39m
+[31m     [31m×[31m loads more posts when Load more is clicked[39m[32m 24[2mms[22m[39m
+[31m     [31m×[31m allows an author to delete their own post[39m[33m 1009[2mms[22m[39m
+ [31m❯[39m src/pages/__tests__/Profile.test.tsx [2m([22m[2m5 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[33m 4047[2mms[22m[39m
+[31m     [31m×[31m renders user information correctly when logged in[39m[33m 1020[2mms[22m[39m
+[31m     [31m×[31m fetches and displays user posts[39m[33m 1009[2mms[22m[39m
+[31m     [31m×[31m sends PATCH with updated name and avatar when Save is clicked[39m[33m 1006[2mms[22m[39m
+[31m     [31m×[31m shows a message if the user has no posts[39m[33m 1005[2mms[22m[39m
+     [32m✓[39m displays a login prompt if the user is not authenticated[32m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 11 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Home.test.tsx[2m > [22mHome Component (Main Feed)[2m > [22mrenders 10 posts from a mocked API response
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ 1 ][90m
+
+Received:
+
+[1m  1st vi.fn() call:
+
+[22m[2m  [[22m
+[2m    1,[22m
+[31m+   "u1",[90m
+[2m  ][22m
+[31m[90m
+
+Number of calls: [1m1[22m
+[31m
+
+Ignored nodes: comments, script, style
+[36m<html>[31m
+  [36m<head />[31m
+  [36m<body>[31m
+    [36m<div />[31m
+  [36m</body>[31m
+[36m</html>[31m[39m
+[36m [2m❯[22m src/pages/__tests__/Home.test.tsx:[2m43:27[22m[39m
+    [90m 41|[39m
+    [90m 42|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m 43|[39m       [34mexpect[39m(mockGetFeed)[33m.[39m[34mtoHaveBeenCalledWith[39m([34m1[39m)[33m;[39m
+    [90m   |[39m                           [31m^[39m
+    [90m 44|[39m     })[33m;[39m
+    [90m 45|[39m
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Home.test.tsx[2m > [22mHome Component (Main Feed)[2m > [22mloads more posts when Load more is clicked
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: Maui, Hawaii. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div />[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/pages/__tests__/Home.test.tsx:[2m62:19[22m[39m
+    [90m 60|[39m
+    [90m 61|[39m     [35mawait[39m screen[33m.[39m[34mfindByText[39m(firstPage[[34m0[39m][33m.[39mlocation)[33m;[39m
+    [90m 62|[39m     expect(screen.getByText(firstPage[1].location)).toBeInTheDocument(…
+    [90m   |[39m                   [31m^[39m
+    [90m 63|[39m
+    [90m 64|[39m     const loadMoreButton = screen.getByRole('button', { name: /load mo…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Home.test.tsx[2m > [22mHome Component (Main Feed)[2m > [22mallows an author to delete their own post
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: Santorini, Greece. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"container"[39m
+      [33mstyle[39m=[32m"padding: var(--spacing-xl) 0;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"text-align: center; margin-bottom: var(--spacing-2xl);"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"text-gradient"[39m
+        [36m>[39m
+          [0mSunrise & Sunset Feed[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mstyle[39m=[32m"color: var(--color-text-secondary); margin-top: var(--spacing-md);"[39m
+        [36m>[39m
+          [0mDiscover beautiful moments from around the world.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"max-width: 800px; margin: 0 auto var(--spacing-xl); position: relative;"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; display: flex; align-items: center;"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-sparkles"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"18"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mstyle[39m=[32m"position: absolute; left: 14px; color: var(--color-primary); z-index: 1;"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"18"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M20 2v4"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M22 4h-4"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"4"[39m
+              [33mcy[39m=[32m"20"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<input[39m
+            [33mclass[39m=[32m"glass-input"[39m
+            [33mplaceholder[39m=[32m"AI Search — try 'golden hour over the ocean' or 'dramatic clouds'..."[39m
+            [33mstyle[39m=[32m"width: 100%; padding: 14px 44px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); color: white; font-size: 1rem;"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid-responsive"[39m
+        [33mstyle[39m=[32m"max-width: 800px; margin: 0px auto; display: flex; flex-direction: column; gap: var(--spacing-xl);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"glass-panel"[39m
+          [33mstyle[39m=[32m"border-radius: var(--radius-lg); overflow: hidden; margin-bottom: var(--spacing-xl); position: relative; transition: var(--transition-base);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"padding: var(--spacing-md); display: flex; align-items: center; justify-content: space-between; z-index: 10; position: relative; background: linear-gradient(rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; gap: var(--spacing-sm);"[39m
+            [36m>[39m
+              [36m<img[39m
+                [33malt[39m=[32m"Sarah J."[39m
+                [33msrc[39m=[32m"https://ui-avatars.com/api/?name=Sarah+J&background=FFD700&color=fff"[39m
+                [33mstyle[39m=[32m"width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.2);"[39m
+              [36m/>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mstyle[39m=[32m"font-weight: 600; font-size: 0.95rem;"[39m
+                [36m>[39m
+                  [0mSarah J.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mstyle[39m=[32m"font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);"[39m
+                [36m>[39m
+                  [0mGrand Canyon, USA[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; gap: var(--spacing-sm);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"badge"[39m
+                [33mstyle[39m=[32m"background: rgba(255, 126, 95, 0.2); border: 1px solid var(--color-primary); padding: 4px 8px; border-radius: var(--radius-full); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; color: var(--color-primary);"[39m
+              [36m>[39m
+                [0msunrise[0m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: relative; min-height: 400px;"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"sunrise at Grand Canyon, USA"[39m
+              [33msrc[39m=[32m"https://images.unsplash.com/photo-1502989642968-94fbdc9eace4?q=80&w=1976&auto=format&fit=crop"[39m
+              [33mstyle[39m=[32m"width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/5; display: block;"[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"position: absolute; bottom: 0px; left: 0px; right: 0px; padding: 40px var(--spacing-md) var(--spacing-md); background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%); display: flex; justify-content: space-between; align-items: end;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; gap: var(--spacing-lg);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"display: flex; align-items: center; gap: 6px;"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-clock"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"16"[39m
+                    [33mst...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"container"[39m
+      [33mstyle[39m=[32m"padding: var(--spacing-xl) 0;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"text-align: center; margin-bottom: var(--spacing-2xl);"[39m
+      [36m>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"text-gradient"[39m
+        [36m>[39m
+          [0mSunrise & Sunset Feed[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mstyle[39m=[32m"color: var(--color-text-secondary); margin-top: var(--spacing-md);"[39m
+        [36m>[39m
+          [0mDiscover beautiful moments from around the world.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"max-width: 800px; margin: 0 auto var(--spacing-xl); position: relative;"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; display: flex; align-items: center;"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-sparkles"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"18"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mstyle[39m=[32m"position: absolute; left: 14px; color: var(--color-primary); z-index: 1;"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"18"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M20 2v4"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M22 4h-4"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"4"[39m
+              [33mcy[39m=[32m"20"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<input[39m
+            [33mclass[39m=[32m"glass-input"[39m
+            [33mplaceholder[39m=[32m"AI Search — try 'golden hour over the ocean' or 'dramatic clouds'..."[39m
+            [33mstyle[39m=[32m"width: 100%; padding: 14px 44px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); color: white; font-size: 1rem;"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid-responsive"[39m
+        [33mstyle[39m=[32m"max-width: 800px; margin: 0px auto; display: flex; flex-direction: column; gap: var(--spacing-xl);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"glass-panel"[39m
+          [33mstyle[39m=[32m"border-radius: var(--radius-lg); overflow: hidden; margin-bottom: var(--spacing-xl); position: relative; transition: var(--transition-base);"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"padding: var(--spacing-md); display: flex; align-items: center; justify-content: space-between; z-index: 10; position: relative; background: linear-gradient(rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; gap: var(--spacing-sm);"[39m
+            [36m>[39m
+              [36m<img[39m
+                [33malt[39m=[32m"Sarah J."[39m
+                [33msrc[39m=[32m"https://ui-avatars.com/api/?name=Sarah+J&background=FFD700&color=fff"[39m
+                [33mstyle[39m=[32m"width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.2);"[39m
+              [36m/>[39m
+              [36m<div>[39m
+                [36m<p[39m
+                  [33mstyle[39m=[32m"font-weight: 600; font-size: 0.95rem;"[39m
+                [36m>[39m
+                  [0mSarah J.[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mstyle[39m=[32m"font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);"[39m
+                [36m>[39m
+                  [0mGrand Canyon, USA[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"display: flex; align-items: center; gap: var(--spacing-sm);"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"badge"[39m
+                [33mstyle[39m=[32m"background: rgba(255, 126, 95, 0.2); border: 1px solid var(--color-primary); padding: 4px 8px; border-radius: var(--radius-full); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; color: var(--color-primary);"[39m
+              [36m>[39m
+                [0msunrise[0m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: relative; min-height: 400px;"[39m
+          [36m>[39m
+            [36m<img[39m
+              [33malt[39m=[32m"sunrise at Grand Canyon, USA"[39m
+              [33msrc[39m=[32m"https://images.unsplash.com/photo-1502989642968-94fbdc9eace4?q=80&w=1976&auto=format&fit=crop"[39m
+              [33mstyle[39m=[32m"width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/5; display: block;"[39m
+            [36m/>[39m
+            [36m<div[39m
+              [33mstyle[39m=[32m"position: absolute; bottom: 0px; left: 0px; right: 0px; padding: 40px var(--spacing-md) var(--spacing-md); background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%); display: flex; justify-content: space-between; align-items: end;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mstyle[39m=[32m"display: flex; gap: var(--spacing-lg);"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mstyle[39m=[32m"display: flex; align-items: center; gap: 6px;"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-clock"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"16"[39m
+                    [33mst...
+[90m [2m❯[22m waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m86:33[22m[39m
+[36m [2m❯[22m src/pages/__tests__/Home.test.tsx:[2m88:18[22m[39m
+    [90m 86|[39m
+    [90m 87|[39m     [35mconst[39m postToDelete [33m=[39m userPosts[[34m0[39m][33m;[39m
+    [90m 88|[39m     [35mawait[39m screen[33m.[39m[34mfindByText[39m(postToDelete[33m.[39mlocation)[33m;[39m
+    [90m   |[39m                  [31m^[39m
+    [90m 89|[39m
+    [90m 90|[39m     const deleteButton = screen.getByRole('button', { name: /delete po…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Login.test.tsx[2m > [22mLogin Component (Google Only)[2m > [22mrenders Google login correctly
+[31m[1mError[22m: [vitest] No "BrowserRouter" export is defined on the "react-router-dom" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("react-router-dom"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m renderWithProviders src/pages/__tests__/Login.test.tsx:[2m27:6[22m[39m
+    [90m 25|[39m [35mconst[39m renderWithProviders [33m=[39m (component[33m:[39m [33mReact[39m[33m.[39m[33mReactElement[39m) [33m=>[39m {
+    [90m 26|[39m   [35mreturn[39m [34mrender[39m(
+    [90m 27|[39m     [33m<[39m[33mBrowserRouter[39m[33m>[39m
+    [90m   |[39m      [31m^[39m
+    [90m 28|[39m       [33m<[39m[33mAuthProvider[39m[33m>[39m
+    [90m 29|[39m         [33m{[39mcomponent[33m}[39m
+[90m [2m❯[22m src/pages/__tests__/Login.test.tsx:[2m44:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Login.test.tsx[2m > [22mLogin Component (Google Only)[2m > [22msuccessfully logs in via Google and stores the token
+[31m[1mError[22m: [vitest] No "BrowserRouter" export is defined on the "react-router-dom" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("react-router-dom"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m renderWithProviders src/pages/__tests__/Login.test.tsx:[2m27:6[22m[39m
+    [90m 25|[39m [35mconst[39m renderWithProviders [33m=[39m (component[33m:[39m [33mReact[39m[33m.[39m[33mReactElement[39m) [33m=>[39m {
+    [90m 26|[39m   [35mreturn[39m [34mrender[39m(
+    [90m 27|[39m     [33m<[39m[33mBrowserRouter[39m[33m>[39m
+    [90m   |[39m      [31m^[39m
+    [90m 28|[39m       [33m<[39m[33mAuthProvider[39m[33m>[39m
+    [90m 29|[39m         [33m{[39mcomponent[33m}[39m
+[90m [2m❯[22m src/pages/__tests__/Login.test.tsx:[2m61:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Login.test.tsx[2m > [22mLogin Component (Google Only)[2m > [22mshows an error message when Google login fails
+[31m[1mError[22m: [vitest] No "BrowserRouter" export is defined on the "react-router-dom" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("react-router-dom"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m renderWithProviders src/pages/__tests__/Login.test.tsx:[2m27:6[22m[39m
+    [90m 25|[39m [35mconst[39m renderWithProviders [33m=[39m (component[33m:[39m [33mReact[39m[33m.[39m[33mReactElement[39m) [33m=>[39m {
+    [90m 26|[39m   [35mreturn[39m [34mrender[39m(
+    [90m 27|[39m     [33m<[39m[33mBrowserRouter[39m[33m>[39m
+    [90m   |[39m      [31m^[39m
+    [90m 28|[39m       [33m<[39m[33mAuthProvider[39m[33m>[39m
+    [90m 29|[39m         [33m{[39mcomponent[33m}[39m
+[90m [2m❯[22m src/pages/__tests__/Login.test.tsx:[2m82:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Profile.test.tsx[2m > [22mProfile Component[2m > [22mrenders user information correctly when logged in
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: Test User. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"container flex-center"[31m
+      [33mstyle[31m=[32m"min-height: 60vh;"[31m
+    [36m>[31m
+      [36m<p[31m
+        [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+      [36m>[31m
+        [0mPlease log in to view your profile.[0m
+      [36m</p>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<html>[31m
+  [36m<head />[31m
+  [36m<body>[31m
+    [36m<div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"container flex-center"[31m
+        [33mstyle[31m=[32m"min-height: 60vh;"[31m
+      [36m>[31m
+        [36m<p[31m
+          [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+        [36m>[31m
+          [0mPlease log in to view your profile.[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</body>[31m
+[36m</html>[31m[39m
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/pages/__tests__/Profile.test.tsx:[2m48:11[22m[39m
+    [90m 46|[39m     [34mrenderWithProviders[39m([33m<[39m[33mProfile[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 47|[39m
+    [90m 48|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   |[39m           [31m^[39m
+    [90m 49|[39m       [34mexpect[39m(screen[33m.[39m[34mgetByText[39m(mockUser[33m.[39mname))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 50|[39m       [34mexpect[39m(screen[33m.[39m[34mgetByText[39m(mockUser[33m.[39memail))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Profile.test.tsx[2m > [22mProfile Component[2m > [22mfetches and displays user posts
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called with arguments: [ 'u1' ][90m
+
+Number of calls: [1m0[22m
+[31m
+
+Ignored nodes: comments, script, style
+[36m<html>[31m
+  [36m<head />[31m
+  [36m<body>[31m
+    [36m<div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"container flex-center"[31m
+        [33mstyle[31m=[32m"min-height: 60vh;"[31m
+      [36m>[31m
+        [36m<p[31m
+          [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+        [36m>[31m
+          [0mPlease log in to view your profile.[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</body>[31m
+[36m</html>[31m[39m
+[36m [2m❯[22m src/pages/__tests__/Profile.test.tsx:[2m62:36[22m[39m
+    [90m 60|[39m
+    [90m 61|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m 62|[39m       [34mexpect[39m(mockGetPostsByUserId)[33m.[39m[34mtoHaveBeenCalledWith[39m(mockUser[33m.[39mid)[33m;[39m
+    [90m   |[39m                                    [31m^[39m
+    [90m 63|[39m     })[33m;[39m
+    [90m 64|[39m
+[90m [2m❯[22m runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:[2m47:12[22m[39m
+[90m [2m❯[22m checkCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m124:77[22m[39m
+[90m [2m❯[22m Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:[2m118:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Profile.test.tsx[2m > [22mProfile Component[2m > [22msends PATCH with updated name and avatar when Save is clicked
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: Test User. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"container flex-center"[31m
+      [33mstyle[31m=[32m"min-height: 60vh;"[31m
+    [36m>[31m
+      [36m<p[31m
+        [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+      [36m>[31m
+        [0mPlease log in to view your profile.[0m
+      [36m</p>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<html>[31m
+  [36m<head />[31m
+  [36m<body>[31m
+    [36m<div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"container flex-center"[31m
+        [33mstyle[31m=[32m"min-height: 60vh;"[31m
+      [36m>[31m
+        [36m<p[31m
+          [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+        [36m>[31m
+          [0mPlease log in to view your profile.[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</body>[31m
+[36m</html>[31m[39m
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/pages/__tests__/Profile.test.tsx:[2m82:11[22m[39m
+    [90m 80|[39m     [34mrenderWithProviders[39m([33m<[39m[33mProfile[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 81|[39m
+    [90m 82|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   |[39m           [31m^[39m
+    [90m 83|[39m       [34mexpect[39m(screen[33m.[39m[34mgetByText[39m(mockUser[33m.[39mname))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m 84|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Profile.test.tsx[2m > [22mProfile Component[2m > [22mshows a message if the user has no posts
+[31m[1mTestingLibraryElementError[22m: Unable to find an element with the text: /you haven't posted any sunrises yet/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"container flex-center"[31m
+      [33mstyle[31m=[32m"min-height: 60vh;"[31m
+    [36m>[31m
+      [36m<p[31m
+        [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+      [36m>[31m
+        [0mPlease log in to view your profile.[0m
+      [36m</p>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m
+
+Ignored nodes: comments, script, style
+[36m<html>[31m
+  [36m<head />[31m
+  [36m<body>[31m
+    [36m<div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"container flex-center"[31m
+        [33mstyle[31m=[32m"min-height: 60vh;"[31m
+      [36m>[31m
+        [36m<p[31m
+          [33mstyle[31m=[32m"color: var(--color-text-secondary);"[31m
+        [36m>[31m
+          [0mPlease log in to view your profile.[0m
+        [36m</p>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</body>[31m
+[36m</html>[31m[39m
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/pages/__tests__/Profile.test.tsx:[2m113:11[22m[39m
+    [90m111|[39m     [34mrenderWithProviders[39m([33m<[39m[33mProfile[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m112|[39m
+    [90m113|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   |[39m           [31m^[39m
+    [90m114|[39m       expect(screen.getByText(/you haven't posted any sunrises yet/i))…
+    [90m115|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/pages/__tests__/Register.test.tsx[2m > [22mRegister Component[2m > [22mvalidates required fields and email format
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /please fill in all required fields/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"auth-container"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"auth-panel"[39m
+        [33mstyle[39m=[32m"max-width: 450px;"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"auth-header"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-gradient"[39m
+          [36m>[39m
+            [0mJoin SunSeeker[0m
+          [36m</h2>[39m
+          [36m<p>[39m
+            [0mBegin your sunrise chasing journey[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"auth-form"[39m
+          [33mnovalidate[39m=[32m""[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mstyle[39m=[32m"color: var(--color-danger); text-align: center; margin-bottom: 1rem;"[39m
+          [36m>[39m
+            [0mUsername is required[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"input-group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-user input-icon"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"18"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"18"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"7"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"auth-input"[39m
+              [33mplaceholder[39m=[32m"Username"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"input-group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-mail input-icon"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"18"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"18"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"[39m
+              [36m/>[39m
+              [36m<rect[39m
+                [33mheight[39m=[32m"16"[39m
+                [33mrx[39m=[32m"2"[39m
+                [33mwidth[39m=[32m"20"[39m
+                [33mx[39m=[32m"2"[39m
+                [33my[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"auth-input"[39m
+              [33mplaceholder[39m=[32m"you@example.com"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"email"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"input-group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-lock input-icon"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"18"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"18"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<rect[39m
+                [33mheight[39m=[32m"11"[39m
+                [33mrx[39m=[32m"2"[39m
+                [33mry[39m=[32m"2"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mx[39m=[32m"3"[39m
+                [33my[39m=[32m"11"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M7 11V7a5 5 0 0 1 10 0v4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"auth-input"[39m
+              [33mplaceholder[39m=[32m"Password (min. 6 characters)"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"password"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"input-group"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-lock input-icon"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"18"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"18"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<rect[39m
+                [33mheight[39m=[32m"11"[39m
+                [33mrx[39m=[32m"2"[39m
+                [33mry[39m=[32m"2"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mx[39m=[32m"3"[39m
+                [33my[39m=[32m"11"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M7 11V7a5 5 0 0 1 10 0v4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"auth-input"[39m
+              [33mplaceholder[39m=[32m"Confirm Password"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"password"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"input-group"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"file-input-label"[39m
+              [33mfor[39m=[32m"profile-pic"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-file-image"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M14 2v5a1 1 0 0 0 1 1h5"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"10"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0mUpload Profile Picture (Optional)[0m
+              [36m</span>[39m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maccept[39m=[32m"image/*"[39m
+              [33mid[39m=[32m"profile-pic"[39m
+              [33mstyle[39m=[32m"display: none;"[39m
+              [33mtype[39m=[32m"file"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"auth-button hover-brightness"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mCreate Account[0m
+          [36m</button>[39m
+        [36m</form>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"divider"[39m
+        [36m>[39m
+          [0mOr continue with[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"social-login"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"social-button"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-chromium"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"20"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"20"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M10.88 21.94 15.46 14"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M21.17 8H12"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3.95 6.06 8.54 14"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span>[39m
+              [0mGoogle[0m
+            [36m</span>[39m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"auth-footer"[39m
+        [36m>[39m
+          [0mAlready have an account? [0m
+          [36m<a[39m
+            [33mclass[39m=[32m"auth-link"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/login"[39m
+          [36m>[39m
+            [0mSign in[0m
+          [36m</a>[39m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"auth-container"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"auth-panel"[39m
+          [33mstyle[39m=[32m"max-width: 450px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"auth-header"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-gradient"[39m
+            [36m>[39m
+              [0mJoin SunSeeker[0m
+            [36m</h2>[39m
+            [36m<p>[39m
+              [0mBegin your sunrise chasing journey[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<form[39m
+            [33mclass[39m=[32m"auth-form"[39m
+            [33mnovalidate[39m=[32m""[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mstyle[39m=[32m"color: var(--color-danger); text-align: center; margin-bottom: 1rem;"[39m
+            [36m>[39m
+              [0mUsername is required[0m
+            [36m</p>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"input-group"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-user input-icon"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"7"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"auth-input"[39m
+                [33mplaceholder[39m=[32m"Username"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"text"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"input-group"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-mail input-icon"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"[39m
+                [36m/>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"16"[39m
+                  [33mrx[39m=[32m"2"[39m
+                  [33mwidth[39m=[32m"20"[39m
+                  [33mx[39m=[32m"2"[39m
+                  [33my[39m=[32m"4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"auth-input"[39m
+                [33mplaceholder[39m=[32m"you@example.com"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"email"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"input-group"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-lock input-icon"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"11"[39m
+                  [33mrx[39m=[32m"2"[39m
+                  [33mry[39m=[32m"2"[39m
+                  [33mwidth[39m=[32m"18"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"11"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M7 11V7a5 5 0 0 1 10 0v4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"auth-input"[39m
+                [33mplaceholder[39m=[32m"Password (min. 6 characters)"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"password"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"input-group"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-lock input-icon"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"18"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"18"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"11"[39m
+                  [33mrx[39m=[32m"2"[39m
+                  [33mry[39m=[32m"2"[39m
+                  [33mwidth[39m=[32m"18"[39m
+                  [33mx[39m=[32m"3"[39m
+                  [33my[39m=[32m"11"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M7 11V7a5 5 0 0 1 10 0v4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<input[39m
+                [33mclass[39m=[32m"auth-input"[39m
+                [33mplaceholder[39m=[32m"Confirm Password"[39m
+                [33mrequired[39m=[32m""[39m
+                [33mtype[39m=[32m"password"[39m
+                [33mvalue[39m=[32m""[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"input-group"[39m
+            [36m>[39m
+              [36m<label[39m
+                [33mclass[39m=[32m"file-input-label"[39m
+                [33mfor[39m=[32m"profile-pic"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"lucide lucide-file-image"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"18"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"18"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M14 2v5a1 1 0 0 0 1 1h5"[39m
+                  [36m/>[39m
+                  [36m<circle[39m
+                    [33mcx[39m=[32m"10"[39m
+                    [33mcy[39m=[32m"12"[39m
+                    [33mr[39m=[32m"2"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<span>[39m
+                  [0mUpload Profile Picture (Optional)[0m
+                [36m</span>[39m
+              [36m</label>[39m
+              [36m<input[39m
+                [33maccept[39m=[32m"image/*"[39m
+                [33mid[39m=[32m"profile-pic"[39m
+                [33mstyle[39m=[32m"display: none;"[39m
+                [33mtype[39m=[32m"file"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"auth-button hover-brightness"[39m
+              [33mtype[39m=[32m"submit"[39m
+            [36m>[39m
+              [0mCreate Account[0m
+            [36m</button>[39m
+          [36m</form>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"divider"[39m
+          [36m>[39m
+            [0mOr continue with[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"social-login"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"social-button"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-chromium"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"20"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"20"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M10.88 21.94 15.46 14"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M21.17 8H12"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M3.95 6.06 8.54 14"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"4"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<span>[39m
+                [0mGoogle[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"auth-footer"[39m
+          [36m>[39m
+            [0mAlready have an account? [0m
+            [36m<a[39m
+              [33mclass[39m=[32m"auth-link"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/login"[39m
+            [36m>[39m
+              [0mSign in[0m
+            [36m</a>[39m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+[90m [2m❯[22m Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2m❯[22m src/pages/__tests__/Register.test.tsx:[2m40:11[22m[39m
+    [90m 38|[39m     [34mrenderWithProviders[39m([33m<[39m[33mRegister[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 39|[39m     fireEvent.click(screen.getByRole('button', { name: /create account…
+    [90m 40|[39m     [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   |[39m           [31m^[39m
+    [90m 41|[39m       expect(screen.getByText(/please fill in all required fields/i)).…
+    [90m 42|[39m     })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mReferenceError[22m: IntersectionObserver is not defined[39m
+[36m [2m❯[22m src/pages/Home.tsx:[2m52:22[22m[39m
+    [90m 50|[39m     [35mconst[39m el [33m=[39m sentinelRef[33m.[39mcurrent[33m;[39m
+    [90m 51|[39m     [35mif[39m ([33m![39mel) [35mreturn[39m[33m;[39m
+    [90m 52|[39m     [35mconst[39m observer [33m=[39m [35mnew[39m [33mIntersectionObserver[39m(
+    [90m   |[39m                      [31m^[39m
+    [90m 53|[39m       (entries) [33m=>[39m {
+    [90m 54|[39m         [35mconst[39m entry [33m=[39m entries[[34m0[39m][33m;[39m
+[90m [2m❯[22m Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:[2m25989:20[22m[39m
+[90m [2m❯[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:[2m874:13[22m[39m
+[90m [2m❯[22m commitHookEffectListMount node_modules/react-dom/cjs/react-dom-client.development.js:[2m13249:29[22m[39m
+[90m [2m❯[22m commitHookPassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:[2m13336:11[22m[39m
+[90m [2m❯[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:[2m15484:13[22m[39m
+[90m [2m❯[22m recursivelyTraversePassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2m❯[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:[2m15718:11[22m[39m
+[90m [2m❯[22m recursivelyTraversePassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2m❯[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:[2m15718:11[22m[39m
+
+[31mThis error originated in "[1msrc/pages/__tests__/Home.test.tsx[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mrenders 10 posts from a mocked API response[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mReferenceError[22m: IntersectionObserver is not defined[39m
+[36m [2m❯[22m src/pages/Home.tsx:[2m52:22[22m[39m
+    [90m 50|[39m     [35mconst[39m el [33m=[39m sentinelRef[33m.[39mcurrent[33m;[39m
+    [90m 51|[39m     [35mif[39m ([33m![39mel) [35mreturn[39m[33m;[39m
+    [90m 52|[39m     [35mconst[39m observer [33m=[39m [35mnew[39m [33mIntersectionObserver[39m(
+    [90m   |[39m                      [31m^[39m
+    [90m 53|[39m       (entries) [33m=>[39m {
+    [90m 54|[39m         [35mconst[39m entry [33m=[39m entries[[34m0[39m][33m;[39m
+[90m [2m❯[22m Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:[2m25989:20[22m[39m
+[90m [2m❯[22m runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:[2m874:13[22m[39m
+[90m [2m❯[22m commitHookEffectListMount node_modules/react-dom/cjs/react-dom-client.development.js:[2m13249:29[22m[39m
+[90m [2m❯[22m commitHookPassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:[2m13336:11[22m[39m
+[90m [2m❯[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:[2m15484:13[22m[39m
+[90m [2m❯[22m recursivelyTraversePassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2m❯[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:[2m15718:11[22m[39m
+[90m [2m❯[22m recursivelyTraversePassiveMountEffects node_modules/react-dom/cjs/react-dom-client.development.js:[2m15439:11[22m[39m
+[90m [2m❯[22m commitPassiveMountOnFiber node_modules/react-dom/cjs/react-dom-client.development.js:[2m15718:11[22m[39m
+
+[31mThis error originated in "[1msrc/pages/__tests__/Home.test.tsx[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mloads more posts when Load more is clicked[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[31m11 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (14)[39m
+[2m     Errors [22m [1m[31m2 errors[39m[22m
+[2m   Start at [22m 14:14:23
+[2m   Duration [22m 4.83s[2m (transform 428ms, setup 264ms, import 1.25s, tests 7.34s, environment 1.91s)[22m
+

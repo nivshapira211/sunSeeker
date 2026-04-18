@@ -4,12 +4,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
 import Register from '../Register';
 
-jest.mock('../../services/authService', () => ({
-  login: jest.fn(),
-  register: jest.fn(),
-  socialLogin: jest.fn(),
-  refreshToken: jest.fn(),
-  updateProfile: jest.fn(),
+vi.mock('../../services/authService', () => ({
+  login: vi.fn(),
+  register: vi.fn(),
+  socialLogin: vi.fn(),
+  refreshToken: vi.fn(),
+  updateProfile: vi.fn(),
 }));
 
 const renderWithProviders = (ui: React.ReactElement) => {
@@ -22,7 +22,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe('Register Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders register form with all fields', () => {
@@ -38,7 +38,7 @@ describe('Register Component', () => {
     renderWithProviders(<Register />);
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
     await waitFor(() => {
-      expect(screen.getByText(/please fill in all required fields/i)).toBeInTheDocument();
+      expect(screen.getByText(/Username is required/i)).toBeInTheDocument();
     });
 
     fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'user1' } });

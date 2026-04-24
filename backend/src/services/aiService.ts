@@ -91,7 +91,7 @@ export const detectSunriseSunset = async (
           },
           {
             type: 'text',
-            text: 'Is this photo a sunrise or a sunset? Reply with exactly one word: sunrise, sunset, or unknown.',
+            text: 'Analyze this photo. Does it show a sunrise, a sunset, or golden hour light? ... Only reply "unknown" if the image is clearly unrelated... Reply with exactly one word: sunrise, sunset, or unknown.',
           },
         ],
       },

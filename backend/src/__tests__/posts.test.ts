@@ -4,6 +4,19 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import path from 'path';
 import fs from 'fs';
+import * as aiService from '../services/aiService';
+import * as embeddingService from '../services/embeddingService';
+
+jest.mock('../services/aiService', () => ({
+  detectSunriseSunset: jest.fn().mockResolvedValue({ type: 'sunrise' })
+}));
+
+jest.mock('../services/embeddingService', () => ({
+  generateEmbedding: jest.fn().mockResolvedValue([0.1, 0.2]),
+  composeEmbeddingText: jest.fn().mockReturnValue('test text'),
+  cosineSimilarity: jest.fn().mockReturnValue(0.9),
+  isEmbeddingConfigured: jest.fn().mockReturnValue(true)
+}));
 
 let mongoServer: MongoMemoryServer | null = null;
 let token: string;
@@ -82,6 +95,71 @@ describe('Post Endpoints', () => {
   it('should return 400 when search query is missing', async () => {
     const res = await request(app).get('/api/posts/search');
     expect(res.statusCode).toEqual(400);
+  });
+
+  describe('detect-type', () => {
+    it('should detect image type', async () => {
+      const testImage = path.join(__dirname, 'test-detect.jpg');
+      fs.writeFileSync(testImage, 'fake data');
+
+      const res = await request(app)
+        .post('/api/posts/detect-type')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('image', testImage);
+
+      fs.unlinkSync(testImage);
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('type', 'sunrise');
+    });
+
+    it('should return 400 when no image is provided', async () => {
+      const res = await request(app)
+        .post('/api/posts/detect-type')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toEqual(400);
+    });
+
+    it('should handle detection errors', async () => {
+      const testImage = path.join(__dirname, 'test-detect-error.jpg');
+      fs.writeFileSync(testImage, 'fake data');
+
+      (aiService.detectSunriseSunset as jest.Mock).mockRejectedValueOnce(new Error('AI Error'));
+
+      const res = await request(app)
+        .post('/api/posts/detect-type')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('image', testImage);
+
+      fs.unlinkSync(testImage);
+      expect(res.statusCode).toEqual(500);
+    });
+  });
+
+  describe('semanticSearch', () => {
+    it('should search posts by semantic query', async () => {
+      // Create a post with embedding first
+      const testImage = path.join(__dirname, 'test-semantic.jpg');
+      fs.writeFileSync(testImage, 'fake data');
+      await request(app)
+        .post('/api/posts')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('image', testImage)
+        .field('caption', 'A beautiful semantic sunset')
+        .field('type', 'sunset');
+      fs.unlinkSync(testImage);
+
+      const res = await request(app).get('/api/posts/semantic-search?q=sunset');
+      
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('posts');
+      expect(Array.isArray(res.body.posts)).toBe(true);
+    });
+
+    it('should return 400 when semantic search query is missing', async () => {
+      const res = await request(app).get('/api/posts/semantic-search');
+      expect(res.statusCode).toEqual(400);
+    });
   });
 
   it('should get posts by user id', async () => {
@@ -214,5 +292,159 @@ describe('Post Endpoints', () => {
 
     const res = await request(app).delete(`/api/posts/${postId}/comments/${commentId}`);
     expect(res.statusCode).toEqual(401);
+  });
+
+  it('should return 404 when deleting non-existent comment', async () => {
+    const fakeId = new mongoose.Types.ObjectId().toString();
+    const res = await request(app)
+      .delete(`/api/posts/${postId}/comments/${fakeId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it('should return 400 when deleting comment from wrong post', async () => {
+    const addRes = await request(app)
+      .post(`/api/posts/${postId}/comments`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ text: 'Wrong post comment' });
+    const commentId = addRes.body._id;
+
+    const fakePostId = new mongoose.Types.ObjectId().toString();
+    const res = await request(app)
+      .delete(`/api/posts/${fakePostId}/comments/${commentId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(400);
+  });
+
+  it('should handle error in updatePost', async () => {
+    const res = await request(app)
+      .put(`/api/posts/invalid-id`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('caption', 'Updated');
+    expect(res.statusCode).toEqual(400);
+  });
+
+  it('should handle error in deletePost', async () => {
+    const res = await request(app)
+      .delete(`/api/posts/invalid-id`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(500);
+  });
+
+  it('should handle error in toggleLike', async () => {
+    const res = await request(app)
+      .post(`/api/posts/invalid-id/like`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(500);
+  });
+
+  it('should return 404 for updating non-existent post', async () => {
+    const fakeId = new mongoose.Types.ObjectId().toString();
+    const res = await request(app)
+      .put(`/api/posts/${fakeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .field('caption', 'Updated');
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it('should return 404 for deleting non-existent post', async () => {
+    const fakeId = new mongoose.Types.ObjectId().toString();
+    const res = await request(app)
+      .delete(`/api/posts/${fakeId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it('should return 404 for toggling like on non-existent post', async () => {
+    const fakeId = new mongoose.Types.ObjectId().toString();
+    const res = await request(app)
+      .post(`/api/posts/${fakeId}/like`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(404);
+  });
+
+  it('should return 401 when deleting comment from wrong user', async () => {
+    const addRes = await request(app)
+      .post(`/api/posts/${postId}/comments`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ text: 'Another user comment' });
+    const commentId = addRes.body._id;
+
+    // create another user
+    const regRes = await request(app)
+      .post('/api/auth/register')
+      .field('username', 'anotheruser')
+      .field('email', 'another@example.com')
+      .field('password', 'password123');
+    const anotherToken = regRes.body.token;
+
+    const res = await request(app)
+      .delete(`/api/posts/${postId}/comments/${commentId}`)
+      .set('Authorization', `Bearer ${anotherToken}`);
+    expect(res.statusCode).toEqual(401);
+  });
+
+  it('should handle error in deleteComment', async () => {
+    const res = await request(app)
+      .delete(`/api/posts/${postId}/comments/invalid-id`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toEqual(500);
+  });
+
+  it('should handle database errors in various post endpoints', async () => {
+    // Test getPosts error
+    jest.spyOn(require('../models/Post').default, 'countDocuments').mockRejectedValueOnce(new Error('DB Error'));
+    const getRes = await request(app).get('/api/posts');
+    expect(getRes.statusCode).toEqual(500);
+
+    // Test searchPosts error
+    jest.spyOn(require('../models/Post').default, 'countDocuments').mockRejectedValueOnce(new Error('DB Error'));
+    const searchRes = await request(app).get('/api/posts/search?q=test');
+    expect(searchRes.statusCode).toEqual(500);
+
+    // Test semanticSearch error
+    const embeddingService = require('../services/embeddingService');
+    jest.spyOn(embeddingService, 'generateEmbedding').mockRejectedValueOnce(new Error('DB Error'));
+    const semanticRes = await request(app).get('/api/posts/semantic-search?q=test');
+    expect(semanticRes.statusCode).toEqual(500);
+
+    // Test createPost error
+    jest.spyOn(require('../models/Post').default, 'create').mockRejectedValueOnce(new Error('DB Error'));
+    const createRes = await request(app).post('/api/posts').set('Authorization', `Bearer ${token}`);
+    expect(createRes.statusCode).toEqual(400);
+
+    // Test getPostsByUserId error
+    jest.spyOn(require('../models/Post').default, 'countDocuments').mockRejectedValueOnce(new Error('DB Error'));
+    const userPostsRes = await request(app).get(`/api/posts/user/someuserid`);
+    expect(userPostsRes.statusCode).toEqual(500);
+
+    // Test getPostById error
+    jest.spyOn(require('../models/Post').default, 'findById').mockReturnValueOnce({
+      populate: jest.fn().mockRejectedValueOnce(new Error('DB Error'))
+    } as any);
+    const getByIdRes = await request(app).get(`/api/posts/${postId}`);
+    expect(getByIdRes.statusCode).toEqual(500);
+
+    // Test updatePost error
+    jest.spyOn(require('../models/Post').default, 'findById').mockRejectedValueOnce(new Error('DB Error'));
+    const updateRes = await request(app).put(`/api/posts/${postId}`).set('Authorization', `Bearer ${token}`);
+    expect(updateRes.statusCode).toEqual(400);
+
+    // Test deletePost error
+    jest.spyOn(require('../models/Post').default, 'findById').mockRejectedValueOnce(new Error('DB Error'));
+    const deleteRes = await request(app).delete(`/api/posts/${postId}`).set('Authorization', `Bearer ${token}`);
+    expect(deleteRes.statusCode).toEqual(500);
+
+    // Test getComments error
+    jest.spyOn(require('../models/Comment').default, 'find').mockReturnValueOnce({
+      populate: jest.fn().mockRejectedValueOnce(new Error('DB Error'))
+    } as any);
+    const getCommentsRes = await request(app).get(`/api/posts/${postId}/comments`);
+    expect(getCommentsRes.statusCode).toEqual(500);
+
+    // Test addComment error
+    jest.spyOn(require('../models/Comment').default, 'create').mockRejectedValueOnce(new Error('DB Error'));
+    const addCommentRes = await request(app).post(`/api/posts/${postId}/comments`).set('Authorization', `Bearer ${token}`);
+    expect(addCommentRes.statusCode).toEqual(400);
   });
 });

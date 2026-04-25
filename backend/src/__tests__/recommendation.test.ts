@@ -8,6 +8,9 @@ import { getRecommendations } from '../services/aiService';
 jest.mock('../services/aiService', () => ({
   getRecommendations: jest.fn(),
   detectSunriseSunset: jest.fn(),
+  getCaptionSuggestion: jest.fn(),
+  getCaptionSuggestionFromImage: jest.fn(),
+  getAssistantReply: jest.fn(),
 }));
 
 let mongoServer: MongoMemoryServer | null = null;
@@ -64,5 +67,119 @@ describe('Recommendation Endpoints', () => {
       .get('/api/recommendations?q=sunset');
     
     expect(res.statusCode).toEqual(401);
+  });
+
+  it('should handle getRecommendations error', async () => {
+    const aiService = require('../services/aiService');
+    aiService.getRecommendations.mockRejectedValueOnce(new Error('AI Error'));
+
+    const res = await request(app)
+      .get('/api/recommendations?q=sunset')
+      .set('Authorization', `Bearer ${token}`);
+    
+    expect(res.statusCode).toEqual(500);
+  });
+
+  describe('Caption Suggestions', () => {
+    it('should return caption suggestion', async () => {
+      const aiService = require('../services/aiService');
+      aiService.getCaptionSuggestion.mockResolvedValueOnce('Great caption');
+
+      const res = await request(app)
+        .get('/api/recommendations/caption?type=sunset&location=Paris')
+        .set('Authorization', `Bearer ${token}`);
+      
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.suggestion).toBe('Great caption');
+    });
+
+    it('should handle caption suggestion error', async () => {
+      const aiService = require('../services/aiService');
+      aiService.getCaptionSuggestion.mockRejectedValueOnce(new Error('AI Error'));
+
+      const res = await request(app)
+        .get('/api/recommendations/caption?type=sunset')
+        .set('Authorization', `Bearer ${token}`);
+      
+      expect(res.statusCode).toEqual(500);
+    });
+
+    it('should handle image caption suggestion', async () => {
+      const aiService = require('../services/aiService');
+      aiService.getCaptionSuggestionFromImage.mockResolvedValueOnce('Image caption');
+
+      const res = await request(app)
+        .post('/api/recommendations/caption')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('image', Buffer.from('test'), 'test.jpg');
+      
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.suggestion).toBe('Image caption');
+    });
+
+    it('should handle missing image file', async () => {
+      const res = await request(app)
+        .post('/api/recommendations/caption')
+        .set('Authorization', `Bearer ${token}`);
+      
+      expect(res.statusCode).toEqual(400);
+    });
+
+    it('should handle image caption suggestion error', async () => {
+      const aiService = require('../services/aiService');
+      aiService.getCaptionSuggestionFromImage.mockRejectedValueOnce(new Error('AI Error'));
+
+      const res = await request(app)
+        .post('/api/recommendations/caption')
+        .set('Authorization', `Bearer ${token}`)
+        .attach('image', Buffer.from('test'), 'test.jpg');
+      
+      expect(res.statusCode).toEqual(500);
+    });
+  });
+
+  describe('Assistant Chat', () => {
+    it('should return assistant reply', async () => {
+      const aiService = require('../services/aiService');
+      aiService.getAssistantReply.mockResolvedValueOnce('Assistant reply');
+
+      const res = await request(app)
+        .post('/api/recommendations/chat')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ messages: [{ role: 'user', text: 'Hello' }] });
+      
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.reply).toBe('Assistant reply');
+    });
+
+    it('should handle missing messages array', async () => {
+      const res = await request(app)
+        .post('/api/recommendations/chat')
+        .set('Authorization', `Bearer ${token}`)
+        .send({});
+      
+      expect(res.statusCode).toEqual(400);
+    });
+
+    it('should handle missing user role', async () => {
+      const res = await request(app)
+        .post('/api/recommendations/chat')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ messages: [{ role: 'assistant', text: 'Hello' }] });
+      
+      expect(res.statusCode).toEqual(400);
+    });
+
+    it('should handle assistant reply error', async () => {
+      const aiService = require('../services/aiService');
+      aiService.getAssistantReply.mockRejectedValueOnce(new Error('AI Error'));
+
+      const res = await request(app)
+        .post('/api/recommendations/chat')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ messages: [{ role: 'user', text: 'Hello' }] });
+      
+      expect(res.statusCode).toEqual(500);
+    });
   });
 });

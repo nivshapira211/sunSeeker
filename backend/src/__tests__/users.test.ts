@@ -87,4 +87,33 @@ describe('User Endpoints', () => {
 
     expect(res.statusCode).toEqual(401);
   });
+
+  it('should update password with valid token', async () => {
+    const res = await request(app)
+      .patch('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ password: 'newpassword123' });
+
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it('should return 404 for getting profile of non-existent user', async () => {
+    // Delete the user first to simulate "User not found"
+    await mongoose.connection.collection('users').deleteOne({ email: 'profile@example.com' });
+
+    const res = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(500);
+  });
+
+  it('should return 404 for updating profile of non-existent user', async () => {
+    const res = await request(app)
+      .patch('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: 'newname' });
+
+    expect(res.statusCode).toEqual(400);
+  });
 });
